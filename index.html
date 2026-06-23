@@ -5,15 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบยืม-คืน iPad - ศูนย์แพทย์ฯ</title>
     
-    <!-- โหลดสไตล์หลักภายนอก -->
     <link rel="stylesheet" href="style.css">
-    
-    <!-- โหลด LINE SDK ตัวล่าสุด -->
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
 
-<!-- ================= หน้าจอที่ 1: ล็อกอิน ================= -->
 <div class="login-card" id="login-page">
     <h2>ระบบยืม-คืน iPad</h2>
     <div class="subtitle">กรุณาเลือกช่องทางเข้าสู่ระบบด้านล่าง</div>
@@ -38,7 +33,6 @@
     </button>
 </div>
 
-<!-- ================= หน้าจอที่ 2: ระบบจัดการหลัก ================= -->
 <div class="dashboard-card" id="dashboard-page">
     <div class="user-profile">
         <img id="u-img" class="profile-img" src="https://via.placeholder.com/60" alt="User Image">
@@ -50,7 +44,6 @@
         <button class="btn-logout" onclick="handleLogout()">ออกจากระบบ</button>
     </div>
 
-    <!-- 2.1: ฟอร์มส่งคำขอขอยืม (User) -->
     <div id="user-section" style="display: none;">
         <h2 style="text-align: left; margin-bottom: 5px; color: #0ea5e9;">การยืม-คืนอุปกรณ์ 📚</h2>
         <div class="form-notice">*** iPad ต้องยืมล่วงหน้า 3 วัน และ เมื่อใช้เสร็จต้องตรวจเครื่องคืน ภายใน 24 ชม. (วันทำการ) หลังใช้เสร็จ</div>
@@ -99,7 +92,6 @@
         </form>
     </div>
 
-    <!-- 2.2: แผงควบคุมรายการคำขอ (Admin) -->
     <div id="admin-section" style="display: none;">
         <h3 style="text-align: left; color:#1e293b; margin-bottom: 5px;">ตารางจัดการคำขอยืมอุปกรณ์</h3>
         <p style="text-align: left; color:#64748b; font-size:14px; margin-bottom:20px;">แอดมินสามารถตรวจสอบคำขอ กดเตรียมอุปกรณ์ และยืนยันการจ่ายเครื่องได้จากตารางด้านล่างนี้</p>
@@ -124,7 +116,6 @@
     </div>
 </div>
 
-<!-- ================= 3: ป๊อปอัพ Check List iPad (Admin) ================= -->
 <div class="modal" id="checklist-modal">
     <div class="modal-content">
         <div class="modal-title">1. [ ผู้เตรียมเครื่อง ] Check List iPad</div>
@@ -140,7 +131,7 @@
     </div>
 </div>
 
-<!-- โหลดรันสคริปต์การทำงานตามลำดับ (สำคัญมาก) -->
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="settings.js"></script>
 <script src="app.js"></script>
 

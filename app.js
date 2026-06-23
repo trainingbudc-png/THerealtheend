@@ -7,6 +7,12 @@ let globalLineId = 'LINE_NOT_LOGGED_IN';
 // เริ่มต้นระบบตรวจสอบ LINE LIFF
 async function startLiff() {
     try {
+        // ตรวจสอบว่ามี CONFIG และ MY_LIFF_ID หรือไม่ก่อนเริ่มต้น
+        if (typeof CONFIG === 'undefined' || !CONFIG.MY_LIFF_ID) {
+            console.error('ไม่พบค่า CONFIG หรือ MY_LIFF_ID กรุณาตรวจสอบไฟล์ settings.js');
+            return;
+        }
+
         await liff.init({ liffId: CONFIG.MY_LIFF_ID });
         if (liff.isLoggedIn()) {
             const profile = await liff.getProfile();
@@ -19,8 +25,11 @@ async function startLiff() {
     }
 }
 
+// ฟังก์ชันสำหรับปุ่มกดเข้าสู่ระบบ LINE
 function handleLineLogin() {
-    if (!liff.isLoggedIn()) { liff.login(); }
+    if (!liff.isLoggedIn()) { 
+        liff.login(); 
+    }
 }
 
 // ล็อกอินฝั่งแอดมินด้วยรหัสผ่าน
@@ -32,7 +41,7 @@ function handleNormalLogin(event) {
     if (user === 'admin' && pass === '1234') {
         currentAdminName = 'แอดมินศูนย์แพทย์ฯ';
         showDashboard(currentAdminName, 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', 'SYSTEM_ADMIN_ACCOUNT', 'admin');
-        loadAdminData(); // โดดไปดึงข้อมูลจากชีตทันที
+        loadAdminData(); 
     } else {
         alert('Username หรือ Password ไม่ถูกต้อง!');
     }
@@ -263,5 +272,7 @@ function handleLogout() {
     window.location.reload(); 
 }
 
-// สั่งให้ระบบ LINE LIFF ทำงานตอนเปิดหน้าจอ
-startLiff();
+// รอให้โครงสร้างเอกสาร (DOM) โหลดเสร็จทั้งหมดก่อน จึงเริ่มทำงาน LIFF เพื่อป้องกันข้อผิดพลาดการอ่านค่า
+document.addEventListener("DOMContentLoaded", function() {
+    startLiff();
+});
