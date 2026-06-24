@@ -107,24 +107,21 @@ function handleNormalLogin(e) {
     const user = document.getElementById('username').value;
     const pass = document.getElementById('password').value;
     
-    fetch(`${BACKEND_URL}?action=manualLogin&username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`)
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) {
-                currentUser.lineId = data.mockLineId || "MANUAL_ADMIN";
-                currentUser.name = data.name;
-                currentUser.img = "https://via.placeholder.com/60";
-                
-                document.getElementById('u-img').src = currentUser.img;
-                document.getElementById('u-name').innerText = currentUser.name;
-                document.getElementById('u-id').innerText = "ID ระบบ: " + currentUser.lineId;
-                
-                checkUserRoleAndRender(currentUser.lineId);
-            } else {
-                alert("ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
-            }
-        })
-        .catch(err => alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบล็อกอิน"));
+    // ✨ กำหนด Username และ Password ที่ต้องการล็อกอินตรงนี้ได้เลยครับ
+    if (user === "admin" && pass === "admin1234") {
+        
+        currentUser.lineId = "MANUAL_ADMIN";
+        currentUser.name = "ผู้ดูแลระบบ (Manual)";
+        currentUser.img = "https://via.placeholder.com/60";
+        
+        document.getElementById('u-img').src = currentUser.img;
+        document.getElementById('u-name').innerText = currentUser.name;
+        document.getElementById('u-id').innerText = "ID ระบบ: " + currentUser.lineId;
+        
+        checkUserRoleAndRender(currentUser.lineId);
+    } else {
+        alert("ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
+    }
 }
 
 // ==========================================
