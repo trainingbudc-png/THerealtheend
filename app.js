@@ -21,7 +21,6 @@ window.onload = function() {
     initializeLiff();
 };
 
-// สลับหน้าจอเปิดกล่องกรอกข้อมูลกรณีเป็น "คนนอกยืม"
 function toggleOutsiderFields() {
     const isChecked = document.getElementById('is_outsider').checked;
     const infoWrap = document.getElementById('outsider-info-wrap');
@@ -53,13 +52,14 @@ function initializeLiff() {
         })
         .catch((err) => {
             console.error("LIFF Initialization failed", err);
-            alert("ไม่สามารถเชื่อมต่อระบบ LINE ได้ กรุณารีเฟรชอีกครั้ง");
         });
 }
 
 function handleLineLogin() {
     if (!liff.isLoggedIn()) {
         liff.login();
+    } else {
+        getUserLineProfile();
     }
 }
 
@@ -103,7 +103,6 @@ function handleNormalLogin(e) {
     const user = document.getElementById('username').value;
     const pass = document.getElementById('password').value;
     
-    // ดักจับชื่อสิทธิ์ตรงนี้เพื่อวิ่งไปทางแยกที่ถูกต้องแบบ Manual 
     if (user === "admin" && pass === "admin1234") {
         currentUser.lineId = "MANUAL_ADMIN";
         currentUser.name = "ผู้ดูแลระบบ (Manual)";
@@ -123,7 +122,6 @@ function handleNormalLogin(e) {
     }
 }
 
-// ฟังก์ชันรวมศูนย์สำหรับสลับและคัดแยกหน้ากากแอปพลิเคชัน
 function renderDashboard() {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('dashboard-page').style.display = 'block';
@@ -183,7 +181,7 @@ function submitBorrowRequest(e) {
         if(data.success) {
             alert(`🎉 บันทึกคำขอสำเร็จ!\nรหัสอ้างอิงคำขอของคุณคือ: ${data.jobId}`);
             document.getElementById('borrowForm').reset();
-            toggleOutsiderFields(); // ปิดฟิลด์คนนอกกลับไปสภาพเริ่มต้น
+            toggleOutsiderFields();
             
             if (currentUser.role === 'Admin') {
                 fetchAdminRequests();
