@@ -80,10 +80,17 @@
                     <label>รายละเอียด</label>
                     <textarea id="borrow_detail" rows="2" placeholder="ระบุรายละเอียด เช่น สอบ mcq" required></textarea>
                 </div>
-                <div class="input-group" style="display: flex; align-items: center; gap: 10px; margin-top: 20px;">
-                    <input type="checkbox" id="is_outsider" style="width: 20px; height: 20px; cursor: pointer;">
-                    <label style="margin-bottom: 0; cursor: pointer;" for="is_outsider">คนนอกยืม</label>
-                </div>
+               <div class="input-group" style="margin-top: 20px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <input type="checkbox" id="is_outsider" onchange="toggleOutsiderField()" style="width: 20px; height: 20px; cursor: pointer;">
+        <label style="margin-bottom: 0; cursor: pointer;" for="is_outsider">คนนอกยืม</label>
+    </div>
+    
+    <div id="outsider-detail-wrap" style="display: none; margin-top: 15px;">
+        <label for="outsider_detail" style="color: #ea580c; font-weight: bold;">📝 รายละเอียดคนนอกยืม (เช่น ชื่อ-นามสกุล / สังกัดหน่วยงาน / เบอร์โทรศัพท์)</label>
+        <textarea id="outsider_detail" rows="2" placeholder="กรุณาระบุข้อมูลติดต่อหรือหน่วยงานของคนนอกเพื่อใช้ติดตามเครื่อง..." style="border-color: #f97316; background-color: #fff7ed;"></textarea>
+    </div>
+</div>
             </div>
             <button type="submit" class="btn-action-submit" id="btn-submit-text">
                 <svg style="width:20px;height:20px" viewBox="0 0 24 24"><path fill="currentColor" d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" /></svg>

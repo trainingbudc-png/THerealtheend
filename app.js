@@ -7,7 +7,6 @@ let globalLineId = 'LINE_NOT_LOGGED_IN';
 // เริ่มต้นระบบตรวจสอบ LINE LIFF
 async function startLiff() {
     try {
-        // ตรวจสอบว่ามี CONFIG และ MY_LIFF_ID หรือไม่ก่อนเริ่มต้น
         if (typeof CONFIG === 'undefined' || !CONFIG.MY_LIFF_ID) {
             console.error('ไม่พบค่า CONFIG หรือ MY_LIFF_ID กรุณาตรวจสอบไฟล์ settings.js');
             return;
@@ -69,7 +68,7 @@ function showDashboard(name, imgUrl, userId, role) {
     }
 }
 
-// [สเต็ปผู้ยืม] ยื่นคำขอส่งเข้า Google Sheets
+// [สเต็ปผู้ยืม] ยื่นคำขอส่งเข้า Google Sheets (อัปเดตพ่วงรายละเอียดคนนอกยืมแล้ว)
 async function submitBorrowRequest(event) {
     event.preventDefault();
     const btn = document.getElementById('btn-submit-text');
@@ -85,7 +84,10 @@ async function submitBorrowRequest(event) {
         start_date: document.getElementById('start_date').value,
         end_date: document.getElementById('end_date').value,
         detail: document.getElementById('borrow_detail').value,
-        is_outsider: document.getElementById('is_outsider').checked ? 'ใช่' : 'ไม่ใช่'
+        is_outsider: document.getElementById('is_outsider').checked ? 'ใช่' : 'ไม่ใช่',
+        
+        // ✨ สเต็ป 2.2: พ่วงรายละเอียดคนนอกยืมส่งไปหลังบ้านด้วย
+        outsider_detail: document.getElementById('outsider_detail').value 
     };
 
     try {
@@ -97,6 +99,7 @@ async function submitBorrowRequest(event) {
         if(resData.status === 'success') {
             alert(`🎉 ส่งคำขอสำเร็จแล้ว! เลขคำขอของคุณคือ: ${resData.jobId}`);
             document.getElementById('borrowForm').reset();
+            toggleOutsiderField(); // ล้างหน้าจอซ่อนกล่องคนนอกกลับตามเดิม
         } else {
             alert('เกิดข้อผิดพลาด: ' + resData.message);
         }
@@ -136,12 +139,19 @@ async function loadAdminData() {
                 actionBtn = `<span style="color:#64748b; font-size:12px;">แอดมินตรวจแล้ว</span>`;
             }
 
+            // แสดงรายละเอียดคนนอกเพิ่มเติมในตารางแอดมิน (ถ้ามี)
+            let outsiderInfo = '';
+            if (row.Is_Outsider === 'ใช่' && row.Outsider_Detail) {
+                outsiderInfo = `<br><span style="font-size:11px; background:#fff7ed; color:#ea580c; padding:2px 4px; border-radius:4px; display:inline-block; margin-top:2px;">📋 ข้อมูลคนนอก: ${row.Outsider_Detail}</span>`;
+            }
+
             tr.innerHTML = `
                 <td style="font-weight: bold; color:#0ea5e9;">${row.Job_ID}</td>
                 <td>
                     <strong>${row.Device_Type} <span style="background:#0ea5e9; color:white; font-size:11px; padding:2px 6px; border-radius:4px;">x${row.Qty}</span></strong><br>
                     <span style="color:#64748b; font-size:12px;">รายละเอียด: ${row.Detail}</span><br>
                     <span style="font-size:11px; background:#f1f5f9; padding:2px 4px; border-radius:4px;">คนนอก: ${row.Is_Outsider}</span>
+                    ${outsiderInfo}
                     ${assignedText}
                 </td>
                 <td>📅 ใช้: ${sDate}<br>🔄 คืน: ${eDate}</td>
@@ -272,7 +282,23 @@ function handleLogout() {
     window.location.reload(); 
 }
 
-// รอให้โครงสร้างเอกสาร (DOM) โหลดเสร็จทั้งหมดก่อน จึงเริ่มทำงาน LIFF เพื่อป้องกันข้อผิดพลาดการอ่านค่า
+// ✨ สเต็ป 2.1: ฟังก์ชันเช็กการติ๊กคนนอกยืม ถ้าติ๊กให้โชว์ช่องกรอกรายละเอียด ถ้าเอาออกให้ซ่อนและล้างค่า
+function toggleOutsiderField() {
+    const isChecked = document.getElementById('is_outsider').checked;
+    const wrap = document.getElementById('outsider-detail-wrap');
+    const input = document.getElementById('outsider_detail');
+    
+    if (isChecked) {
+        wrap.style.display = 'block';
+        input.required = true; // บังคับกรอกข้อมูลเมื่อติ๊กถูก
+    } else {
+        wrap.style.display = 'none';
+        input.required = false;
+        input.value = ''; // ล้างข้อความข้างในออกหากผู้ใช้เปลี่ยนใจยกเลิกติ๊ก
+    }
+}
+
+// รอให้โครงสร้างเอกสาร (DOM) โหลดเสร็จทั้งหมดก่อน จึงเริ่มทำงาน LIFF
 document.addEventListener("DOMContentLoaded", function() {
     startLiff();
 });
