@@ -67,7 +67,7 @@ function checkUserRoleAndRender(lineId) {
         .then(data => {
             currentUser.role = data.role;
             
-            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('login-page').style.none = 'none';
             document.getElementById('dashboard-page').style.display = 'block';
             
             if (currentUser.role === 'Admin') {
@@ -81,7 +81,7 @@ function checkUserRoleAndRender(lineId) {
                 document.getElementById('u-role').innerText = "สถานะ: ผู้ยืม (User) 👤";
                 document.getElementById('u-role').style.color = "#0ea5e9";
                 document.getElementById('user-section').style.display = 'block';
-                document.getElementById('admin-section').style.display = 'none';
+                document.getElementById('admin-section').style.none = 'none';
                 fetchUserRequests();
             }
         })
@@ -128,27 +128,29 @@ function handleNormalLogin(e) {
 }
 
 // ==========================================
-// 3. FRONTEND INTERACTION LOGIC (คนนอกยืม)
+// 3. FRONTEND INTERACTION LOGIC (เปิด/ปิด กล่องคนนอกยืม)
 // ==========================================
-function toggleOutsiderField() {
+function toggleOutsiderFields() {
     const isChecked = document.getElementById('is_outsider').checked;
-    const wrap = document.getElementById('outsider-detail-wrap');
-    const input = document.getElementById('outsider_detail');
+    const wrap = document.getElementById('outsider-info-wrap');
+    const nameInput = document.getElementById('outsider_name');
+    const phoneInput = document.getElementById('outsider_phone');
     
-    if (wrap && input) {
-        if (isChecked) {
-            wrap.style.display = 'block';
-            input.setAttribute('required', 'required');
-        } else {
-            wrap.style.display = 'none';
-            input.removeAttribute('required');
-            input.value = '';
-        }
+    if (isChecked) {
+        wrap.style.display = 'block';
+        nameInput.setAttribute('required', 'required');
+        phoneInput.setAttribute('required', 'required');
+    } else {
+        wrap.style.display = 'none';
+        nameInput.removeAttribute('required');
+        phoneInput.removeAttribute('required');
+        nameInput.value = '';
+        phoneInput.value = '';
     }
 }
 
 // ==========================================
-// 4. BORROW REQUEST SUBMISSION
+// 4. BORROW REQUEST SUBMISSION (อัปเดตส่งข้อมูลคนนอกยืม)
 // ==========================================
 function submitBorrowRequest(e) {
     e.preventDefault();
@@ -166,8 +168,11 @@ function submitBorrowRequest(e) {
         startDate: document.getElementById('start_date').value,
         endDate: document.getElementById('end_date').value,
         detail: document.getElementById('borrow_detail').value,
+        
+        // ส่งค่าข้อมูลคนนอกยืมแยกเป็น 3 คีย์ชัดเจนให้หลังบ้านเอาไปบันทึก
         isOutsider: document.getElementById('is_outsider').checked ? "ใช่" : "ไม่ใช่",
-        outsiderDetail: document.getElementById('is_outsider').checked ? document.getElementById('outsider_detail').value : ""
+        outsiderName: document.getElementById('is_outsider').checked ? document.getElementById('outsider_name').value : "",
+        outsiderPhone: document.getElementById('is_outsider').checked ? document.getElementById('outsider_phone').value : ""
     };
 
     fetch(BACKEND_URL, {
@@ -179,7 +184,9 @@ function submitBorrowRequest(e) {
         if(data.success) {
             alert("🎉 บันทึกคำขอยืมลงระบบเรียบร้อยแล้ว! โปรดรอแอดมินดำเนินการจัดเตรียมเครื่อง");
             document.getElementById('borrowForm').reset();
-            toggleOutsiderField();
+            
+            // รีเซ็ตการซ่อนกล่องข้อความคนนอกยืมหลังจากกดบันทึกสำเร็จ
+            toggleOutsiderFields();
             
             if (currentUser.role === 'Admin') fetchAdminRequests();
             fetchUserRequests();
@@ -231,7 +238,8 @@ function fetchUserRequests() {
                     actionButton = `-`;
                 }
 
-                let outsiderTag = row.isOutsider === "ใช่" ? ` <br><small style="background:#ffedd5; color:#ea580c; padding:2px 4px; border-radius:4px; font-size:11px;">👤 คนนอก: ${row.outsiderDetail}</small>` : "";
+                // แสดงป้ายข้อมูลคนนอกยืมในตารางประวัติผู้ยืม
+                let outsiderTag = row.isOutsider === "ใช่" ? ` <br><small style="background:#ffedd5; color:#ea580c; padding:2px 4px; border-radius:4px; font-size:11px;">👤 คนนอก: ${row.outsiderName} (${row.outsiderPhone})</small>` : "";
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -353,7 +361,8 @@ function fetchAdminRequests() {
                     actionBtn = `<button class="btn-action-return" onclick="processReturnItem('${row.jobId}')" style="background-color:#6366f1;">🔄 รับเครื่องคืน</button>`;
                 }
 
-                let outsiderBadge = row.isOutsider === "ใช่" ? `<br><span style="background-color:#fee2e2; color:#ef4444; font-size:11px; padding:2px 4px; border-radius:4px; display:inline-block; margin-top:3px;">👤 คนนอก: ${row.outsiderDetail}</span>` : "";
+                // แสดงป้ายข้อมูลคนนอกยืมในตารางของแอดมิน
+                let outsiderBadge = row.isOutsider === "ใช่" ? `<br><span style="background-color:#fee2e2; color:#ef4444; font-size:11px; padding:2px 4px; border-radius:4px; display:inline-block; margin-top:3px;">👤 คนนอก: ${row.outsiderName} (${row.outsiderPhone})</span>` : "";
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -424,7 +433,6 @@ function closeChecklistModal() {
     currentAdminActiveJob = null;
 }
 
-// แอดมินปล่อยเครื่องสำเร็จ (List 1)
 function confirmAndGiveItem() {
     if (!currentAdminActiveJob) return;
 
