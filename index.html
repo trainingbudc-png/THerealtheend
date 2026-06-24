@@ -118,7 +118,10 @@
     </div>
 
     <div id="admin-section" style="display: none; margin-top: 40px; border-top: 4px dashed #cbd5e1; padding-top: 25px;">
-        <div class="section-title" style="color:#0ea5e9;">🛠️ ส่วนควบคุมสำหรับผู้ดูแลระบบ (Admin)</div>
+        <div class="section-title" style="color:#0ea5e9; display: flex; justify-content: space-between; align-items: center;">
+            <span>🛠️ ส่วนควบคุมสำหรับผู้ดูแลระบบ (Admin)</span>
+            <button onclick="fetchAdminRequests(); fetchUserRequests();" style="background: #0ea5e9; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;">🔄 รีเฟรชข้อมูลตาราง</button>
+        </div>
         <div class="table-responsive">
             <table>
                 <thead>
