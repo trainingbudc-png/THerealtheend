@@ -37,13 +37,16 @@ function toggleOutsiderFields() {
     }
 }
 
-// ⚠️ เช็กความปลอดภัยเพื่อให้หน้าล็อกอินพร้อมเสมอ
 function initializeLiff() {
     liff.init({ liffId: LIFF_ID })
         .then(() => {
-            // บังคับให้ค้างไว้ที่หน้าล็อกอินหลักก่อนเสมอ
+            // สแตนด์บายที่หน้า Login เสมอ
             document.getElementById('login-page').style.display = 'block';
             document.getElementById('dashboard-page').style.display = 'none';
+            
+            if (liff.isLoggedIn()) {
+                getUserLineProfile();
+            }
         })
         .catch((err) => {
             console.error("LIFF Initialization failed", err);
@@ -92,29 +95,30 @@ function checkUserRoleAndRender(lineId) {
 }
 
 // ==========================================
-// 3. MANUAL / NORMAL LOGIN SYSTEM
+// 3. SYSTEM LOGIN (ล็อกอินของแอดมินระบบ)
 // ==========================================
 function handleNormalLogin(e) {
     e.preventDefault();
     const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value.trim(); // ล็อกตรงกับไอดีใน html แน่นอน
+    const pass = document.getElementById('password').value.trim();
     
-    if (user === "admin" && pass === "admin1234") { 
+    if (user === "admin" && pass === "admin1234") {
         currentUser.lineId = "MANUAL_ADMIN";
-        currentUser.name = "ผู้ดูแลระบบ (Admin)";
+        currentUser.name = "ผู้ดูแลระบบ (Manual Admin)";
         currentUser.img = "https://via.placeholder.com/60";
         currentUser.role = "Admin"; 
         
         document.getElementById('u-img').src = currentUser.img;
         document.getElementById('u-name').innerText = currentUser.name;
-        document.getElementById('u-id').innerText = "สิทธิ์: ผู้ดูแลระบบสูงสุด";
+        document.getElementById('u-id').innerText = "SYSTEM ACCESS";
 
         renderDashboard();
     } else {
-        alert("❌ ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
+        alert("❌ ชื่อผู้ใช้งานหรือรหัสผ่านผู้ดูแลระบบไม่ถูกต้อง");
     }
 }
 
+// 🔥 ปรับปรุงฟังก์ชันควบคุมหน้าจอ ไม่ให้เรียกตารางฝั่งผู้ใช้มาพังระบบหากล็อกอินด้วยแอดมิน
 function renderDashboard() {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('dashboard-page').style.display = 'block';
@@ -125,14 +129,15 @@ function renderDashboard() {
         document.getElementById('u-role').style.color = "#0369a1";
         document.getElementById('admin-section').style.display = 'block';
         
+        // แอดมินให้โหลดเฉพาะตารางฝั่งแอดมินอย่างเดียว
         fetchAdminRequests();
-        fetchUserRequests();
     } else {
         document.getElementById('u-role').innerText = "สถานะ: User 👤";
         document.getElementById('u-role').style.backgroundColor = "#f1f5f9";
         document.getElementById('u-role').style.color = "#475569";
         document.getElementById('admin-section').style.display = 'none';
         
+        // ยูสเซอร์ทั่วไปให้โหลดเฉพาะประวัติตัวเอง
         fetchUserRequests();
     }
 }
@@ -176,9 +181,12 @@ function submitBorrowRequest(e) {
             document.getElementById('borrowForm').reset();
             toggleOutsiderFields();
             
-            // เรียกทั้งสองตารางให้อัปเดตข้อมูลขึ้นมาใหม่พร้อมกันแบบเรียลไทม์ทันที
-            fetchAdminRequests();
-            fetchUserRequests();
+            // เช็กสถานะเพื่อรีโหลดตารางอย่างถูกต้องและทันที
+            if (currentUser.role === 'Admin') {
+                fetchAdminRequests();
+            } else {
+                fetchUserRequests();
+            }
         } else {
             alert("❌ เกิดข้อผิดพลาด: " + data.message);
         }
@@ -347,8 +355,12 @@ function confirmAdminGive() {
         if(data.success) {
             alert("📦 สำเร็จ! แอดมินเช็กเตรียมอุปกรณ์เสร็จสิ้น ระบบส่งไม้ต่อให้ผู้ยืมตรวจรับเรียบร้อยครับ");
             closeChecklistModal();
-            fetchAdminRequests();
-            fetchUserRequests();
+            
+            if (currentUser.role === 'Admin') {
+                fetchAdminRequests();
+            } else {
+                fetchUserRequests();
+            }
         } else {
             alert("❌ ไม่สามารถบันทึกได้เนื่องจาก: " + data.message);
         }
@@ -385,7 +397,7 @@ function confirmUserReceive() {
     const signName = document.getElementById('user_receive_sign').value.trim();
 
     if(!signName) {
-        alert("⚠️ โปรดิมพ์ชื่อ-นามสกุลจริงของคุณ เพื่อใช้เป็นหลักฐานการเซ็นรับเครื่องดิจิทัล");
+        alert("⚠️ โปรดพิมพ์ชื่อ-นามสกุลจริงของคุณ เพื่อใช้เป็นหลักฐานการเซ็นรับเครื่องดิจิทัล");
         return;
     }
 
@@ -417,8 +429,12 @@ function confirmUserReceive() {
         if(data.success) {
             alert("🎉 ยืนยันการรับเครื่องเสร็จสมบูรณ์! ระบบได้เปลี่ยนสถานะเป็น 'กำลังใช้งาน' เรียบร้อยครับ");
             closeUserReceiveModal();
-            if (currentUser.role === 'Admin') fetchAdminRequests();
-            fetchUserRequests();
+            
+            if (currentUser.role === 'Admin') {
+                fetchAdminRequests();
+            } else {
+                fetchUserRequests();
+            }
         } else {
             alert("❌ เกิดความผิดพลาดจากระบบ: " + data.message);
         }
@@ -441,8 +457,12 @@ function processReturnItem(jobId) {
         .then(data => {
             if(data.success) {
                 alert("🔄 รับคืนอุปกรณ์และเคลียร์ประวัติลง Google Sheets สำเร็จเรียบร้อยครับ");
-                fetchAdminRequests();
-                fetchUserRequests();
+                
+                if (currentUser.role === 'Admin') {
+                    fetchAdminRequests();
+                } else {
+                    fetchUserRequests();
+                }
             } else {
                 alert("❌ ทำรายการไม่สำเร็จ: " + data.message);
             }
