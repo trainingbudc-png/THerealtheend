@@ -13,15 +13,15 @@
 body {
     background-color: #f8fafc;
     color: #1e293b;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
     padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* เปลี่ยนเพื่อให้ยืดหยุ่นเวลามีข้อมูลยาวๆ */
 }
 
 /* ==========================================
-   2. CARD LAYOUT (LOGIN & DASHBOARD)
+   2. CONTAINER & CARDS LAYOUT (แก้อาการซ้อนกัน)
    ========================================== */
 .login-card, .dashboard-card {
     background: #ffffff;
@@ -29,11 +29,12 @@ body {
     border-radius: 16px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     width: 100%;
-    text-align: center;
+    margin: 20px auto; /* จัดให้อยู่กึ่งกลางหน้าจอแนวนอนอัตโนมัติ */
 }
 
+/* คุมขนาดแยกกันคนละใบอย่างชัดเจน */
 .login-card {
-    max-width: 400px;
+    max-width: 420px;
 }
 
 .dashboard-card {
@@ -45,12 +46,14 @@ h2 {
     font-weight: 700;
     color: #0f172a;
     margin-bottom: 8px;
+    text-align: center;
 }
 
 .subtitle {
     font-size: 14px;
     color: #64748b;
     margin-bottom: 25px;
+    text-align: center;
 }
 
 .divider {
@@ -58,13 +61,14 @@ h2 {
     color: #94a3b8;
     position: relative;
     font-size: 14px;
+    text-align: center;
 }
 
 .divider::before, .divider::after {
     content: "";
     position: absolute;
     top: 50%;
-    width: 40%;
+    width: 38%;
     height: 1px;
     background-color: #e2e8f0;
 }
@@ -103,11 +107,6 @@ h2 {
     color: #1e293b;
 }
 
-.user-id {
-    font-size: 12px;
-    color: #64748b;
-}
-
 /* ==========================================
    4. FORM LAYOUT & INPUTS
    ========================================== */
@@ -120,18 +119,20 @@ h2 {
     font-size: 13px;
     font-weight: 600;
     text-align: left;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    gap: 20px;
     text-align: left;
+    margin-bottom: 25px;
 }
 
-/* ปรับให้ช่องรายละเอียดขยายเต็มแถว */
-.form-grid .input-group:nth-child(6) {
+/* บังคับช่อง "รายละเอียด" และ "คนนอกยืม" ยืดเต็มความกว้าง */
+.form-grid > .input-group:nth-child(6),
+.form-grid > .input-group:nth-child(7) {
     grid-column: span 2;
 }
 
@@ -139,7 +140,6 @@ h2 {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    text-align: left;
 }
 
 .input-group label {
@@ -161,7 +161,7 @@ h2 {
     font-size: 14px;
     color: #334155;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
 }
 
 .input-group input:focus,
@@ -171,17 +171,13 @@ h2 {
     box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
-form {
-    height: auto !important;
-    overflow: visible !important;
-}
-
 /* ==========================================
    5. BUTTONS STYLES
    ========================================== */
 button {
     font-family: inherit;
     transition: all 0.2s;
+    cursor: pointer;
 }
 
 .btn-submit {
@@ -192,12 +188,11 @@ button {
     padding: 12px;
     border-radius: 8px;
     font-weight: 600;
-    cursor: pointer;
+    font-size: 15px;
 }
 
 .btn-submit:hover { background-color: #1e293b; }
 
-/* จำกัดขนาดไอคอน LINE ไม่ให้ระเบิดใหญ่เต็มจอ */
 .btn-line {
     background-color: #06C755;
     color: white;
@@ -206,7 +201,7 @@ button {
     padding: 12px;
     border-radius: 8px;
     font-weight: 600;
-    cursor: pointer;
+    font-size: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -229,7 +224,6 @@ button {
     border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
-    cursor: pointer;
 }
 
 .btn-logout:hover { background-color: #fecaca; }
@@ -239,21 +233,21 @@ button {
     color: white;
     border: none;
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     border-radius: 8px;
     font-weight: 600;
     font-size: 16px;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    margin-top: 10px;
 }
 
 .btn-action-submit:hover { background-color: #0284c7; }
 
 /* ==========================================
-   6. DATA TABLES (ฝั่งแอดมิน & ประวัติผู้ยืม)
+   6. DATA TABLES (Admin & User History)
    ========================================== */
 .admin-table {
     width: 100%;
@@ -278,32 +272,8 @@ button {
     font-weight: bold;
 }
 
-.btn-action-process {
-    background-color: #d97706;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.btn-action-process:hover { filter: brightness(0.9); }
-
-.btn-action-return {
-    background-color: #6366f1;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
-}
-
 /* ==========================================
-   7. MODAL POP-UP SYSTEM
+   7. MODAL SYSTEM
    ========================================== */
 .modal {
     display: none; 
@@ -327,53 +297,15 @@ button {
     padding: 25px; 
     border-radius: 14px; 
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-    max-height: 90vh;
-    overflow-y: auto;
 }
-
-.modal-title {
-    font-size: 18px;
-    font-weight: bold;
-    color: #0ea5e9;
-    border-bottom: 2px solid #f1f5f9;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-.btn-modal-confirm {
-    background-color: #0ea5e9;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 15px;
-}
-
-.btn-modal-close {
-    background-color: #f1f5f9;
-    color: #475569;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 8px;
-}
-
-.btn-modal-close:hover { background-color: #e2e8f0; }
 
 /* Responsive สำหรับมือถือ */
 @media (max-width: 640px) {
     .form-grid {
         grid-template-columns: 1fr;
     }
-    .form-grid .input-group:nth-child(6) {
+    .form-grid > .input-group:nth-child(6),
+    .form-grid > .input-group:nth-child(7) {
         grid-column: span 1;
     }
     .admin-table {
