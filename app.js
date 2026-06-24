@@ -61,7 +61,6 @@ function getUserLineProfile() {
     });
 }
 
-// ฟังก์ชันเข้าสู่ระบบของ Admin ระบบกลาง
 function handleNormalLogin(event) {
     event.preventDefault();
     const userInp = document.getElementById("username").value.trim();
@@ -94,14 +93,13 @@ function switchPageToDashboard() {
     fetchUserRequests();
 }
 
-// 3.1 ส่งคำขอขอยืมอุปกรณ์ใหม่ (แมตช์ action: "submitRequest")
 function submitBorrowRequest(event) {
     event.preventDefault();
     const btn = document.getElementById("btn-submit-req");
     const isOutsider = document.getElementById('is_outsider').checked;
     
     const payload = {
-        action: "submitRequest", // แมตช์กับหลังบ้านของพี่นัท
+        action: "submitRequest", 
         lineId: currentUser.lineId,
         userName: currentUser.name,
         deviceType: document.getElementById("device_type").value,
@@ -143,7 +141,6 @@ function submitBorrowRequest(event) {
     });
 }
 
-// 2.3 ดึงข้อมูลฝั่งผู้ใช้งานทั่วไป (แมตช์ action: "getUserRequests")
 function fetchUserRequests() {
     const tbody = document.getElementById("user-table-body");
     if (!tbody) return;
@@ -160,7 +157,6 @@ function fetchUserRequests() {
                 let statusBadge = "";
                 let actionBtn = "";
 
-                // ตรวจคำสั่งแมตช์กับสถานะข้อความจริงในแผ่นชีตพี่นัท
                 if (item.status === "1. รอแอดมินเตรียมเครื่อง") {
                     statusBadge = `<span class="status-badge" style="background:#fef3c7; color:#d97706; padding: 4px 8px; border-radius: 4px; font-size:12px;">รอแอดมินเตรียมเครื่อง</span>`;
                 } else if (item.status === "2. รอผู้ยืมตรวจสอบและรับเครื่อง") {
@@ -186,11 +182,10 @@ function fetchUserRequests() {
             });
         })
         .catch(err => {
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:red;">ดึงข้อมูลผิดพลาด เนื่องจากสิทธิ์คลังเข้าไม่ถึง</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:red;">ดึงข้อมูลผิดพลาด</td></tr>`;
         });
 }
 
-// 2.4 ดึงข้อมูลฝั่ง Admin ทั้งหมด (แมตช์ action: "getAdminRequests")
 function fetchAdminRequests() {
     const tbody = document.getElementById("admin-table-body");
     if (!tbody) return;
@@ -253,7 +248,6 @@ function closeChecklistModal() {
     document.getElementById("checklistModal").style.display = "none";
 }
 
-// 3.2 แอดมินบันทึกเลขเครื่องครุภัณฑ์และอนุมัติ (แมตช์ action: "confirmAdminGive")
 function confirmAdminGive() {
     const jobId = document.getElementById("modal-job-id").value;
     const assignedDevice = document.getElementById("admin_assign_device").value.trim();
@@ -275,7 +269,7 @@ function confirmAdminGive() {
     btn.disabled = true;
 
     const payload = {
-        action: "confirmAdminGive", // แมตช์หลังบ้าน
+        action: "confirmAdminGive", 
         jobId: jobId,
         assignedDevice: assignedDevice
     };
@@ -313,7 +307,6 @@ function closeUserReceiveModal() {
     document.getElementById("userReceiveModal").style.display = "none";
 }
 
-// 3.3 ผู้ยืมกดยอมรับเครื่องพร้อมตรวจของและบันทึกลายเซ็น (แมตช์ action: "confirmUserReceive")
 function confirmUserReceive() {
     const jobId = document.getElementById("user-modal-job-id").value;
     const userSign = document.getElementById("user_receive_sign").value.trim();
@@ -334,7 +327,7 @@ function confirmUserReceive() {
     btn.disabled = true;
 
     const payload = {
-        action: "confirmUserReceive", // แมตช์หลังบ้าน
+        action: "confirmUserReceive", 
         jobId: jobId,
         userSign: userSign
     };
@@ -355,7 +348,6 @@ function confirmUserReceive() {
     .finally(() => { btn.disabled = false; });
 }
 
-// 2.5 แอดมินกดบันทึกรับของคืนระบบคลัง (แมตช์ action: "returnDevice")
 function processReturnItem(jobId) {
     if (!confirm(`ยืนยันการบันทึกรับคืนอุปกรณ์สำหรับคำขอเลขที่ ${jobId} หรือไม่?`)) return;
 
