@@ -48,7 +48,7 @@
         <h2 style="text-align: left; margin-bottom: 5px; color: #0ea5e9;">การยืม-คืนอุปกรณ์ 📚</h2>
         <div class="form-notice">*** iPad ต้องยืมล่วงหน้า 3 วัน และ เมื่อใช้เสร็จต้องตรวจเครื่องคืน ภายใน 24 ชม. (วันทำการ) หลังใช้เสร็จ</div>
         
-        <form id="borrowForm" onsubmit="submitBorrowRequest(event)">
+        <form id="borrowForm" onsubmit="submitBorrowRequest(event)" style="height: auto; overflow: visible;">
             <div class="form-grid">
                 <div class="input-group">
                     <label>คลัง</label>
@@ -80,23 +80,46 @@
                     <label>รายละเอียด</label>
                     <textarea id="borrow_detail" rows="2" placeholder="ระบุรายละเอียด เช่น สอบ mcq" required></textarea>
                 </div>
-               <div class="input-group" style="margin-top: 20px;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <input type="checkbox" id="is_outsider" onchange="toggleOutsiderField()" style="width: 20px; height: 20px; cursor: pointer;">
-        <label style="margin-bottom: 0; cursor: pointer;" for="is_outsider">คนนอกยืม</label>
-    </div>
-    
-    <div id="outsider-detail-wrap" style="display: none; margin-top: 15px;">
-        <label for="outsider_detail" style="color: #ea580c; font-weight: bold;">📝 รายละเอียดคนนอกยืม (เช่น ชื่อ-นามสกุล / สังกัดหน่วยงาน / เบอร์โทรศัพท์)</label>
-        <textarea id="outsider_detail" rows="2" placeholder="กรุณาระบุข้อมูลติดต่อหรือหน่วยงานของคนนอกเพื่อใช้ติดตามเครื่อง..." style="border-color: #f97316; background-color: #fff7ed;"></textarea>
-    </div>
-</div>
             </div>
-            <button type="submit" class="btn-action-submit" id="btn-submit-text">
+
+            <div class="input-group" style="margin-top: 20px; width: 100%; text-align: left;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                    <input type="checkbox" id="is_outsider" onchange="toggleOutsiderField()" style="width: 20px; height: 20px; cursor: pointer;">
+                    <label style="margin-bottom: 0; cursor: pointer; font-weight: bold;" for="is_outsider">คนนอกยืม</label>
+                </div>
+                
+                <div id="outsider-detail-wrap" style="display: none; margin-top: 15px; background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 8px;">
+                    <label for="outsider_detail" style="color: #ea580c; font-weight: bold; font-size: 14px; display: block; margin-bottom: 8px;">📝 รายละเอียดคนนอกยืม (เช่น ชื่อ-นามสกุล / สังกัดหน่วยงาน / เบอร์โทรศัพท์)</label>
+                    <textarea id="outsider_detail" rows="2" placeholder="กรุณาระบุข้อมูลติดต่อหรือหน่วยงานของคนนอกเพื่อใช้ติดตามเครื่อง..." style="border: 1px solid #f97316; width: 100%; padding: 10px; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 14px;"></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-action-submit" id="btn-submit-text" style="margin-top: 20px;">
                 <svg style="width:20px;height:20px" viewBox="0 0 24 24"><path fill="currentColor" d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" /></svg>
                 ขอเบิก
             </button>
         </form>
+
+        <div style="margin-top: 40px; border-top: 2px dashed #cbd5e1; padding-top: 25px;">
+            <h3 style="text-align: left; color:#10b981; margin-bottom: 5px; font-size: 18px;">📋 รายการคำขอของคุณและการตรวจรับอุปกรณ์</h3>
+            <p style="text-align: left; color:#64748b; font-size:13px; margin-bottom:15px;">เมื่อแอดมินเตรียมเครื่องให้สำเร็จ (List 1 ผ่าน) สถานะจะขยับ และปุ่มตรวจรับจะแสดงให้กดครับ</p>
+            
+            <table class="admin-table" style="border-color: #10b981;">
+                <thead>
+                    <tr style="background-color: #10b981; color: white;">
+                        <th style="width: 15%;">เลขคำขอ</th>
+                        <th style="width: 45%;">รายการขอยืม</th>
+                        <th style="width: 25%;">สถานะระบบ</th>
+                        <th style="width: 15%;">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="user-table-body">
+                    <tr>
+                        <td colspan="4" style="text-align:center; color:#64748b; padding: 20px;">⏳ กำลังโหลดข้อมูลประวัติยืมจาก Line ID ของคุณ...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div id="admin-section" style="display: none;">
@@ -135,6 +158,39 @@
 
         <button class="btn-modal-confirm" id="btn-modal-confirm-id" onclick="confirmAndGiveItem()">ยืนยันความพร้อมและ [ให้ยืม]</button>
         <button class="btn-modal-close" onclick="closeChecklistModal()">ยกเลิก</button>
+    </div>
+</div>
+
+<div class="modal" id="user-checklist-modal" style="display: none; align-items: center; justify-content: center;">
+    <div class="modal-content" style="max-width: 480px; text-align: left;">
+        <div class="modal-title" style="color: #10b981; border-color: #10b981;">2. [ ผู้รับเครื่อง ] ใบตรวจรับอุปกรณ์</div>
+        
+        <p style="font-size:14px; margin: 5px 0;"><strong>เลขใบคำขอ:</strong> <span id="us-md-job-id" style="color:#0ea5e9; font-weight:bold;">-</span></p>
+        <p style="font-size:14px; margin: 5px 0;"><strong>ครุภัณฑ์ที่แอดมินจัดจ่าย:</strong> <span id="us-md-devices" style="color:#16a34a; font-weight:bold;">-</span></p>
+        
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px; font-size:12px; color:#166534; margin: 12px 0;">
+            💡 <strong>คำแนะนำ:</strong> โปรดตรวจสอบตัวเครื่องและอุปกรณ์เสริมจริงที่ได้จากแอดมิน หากสมบูรณ์ดีให้ติ๊กถูกให้ครบทุกข้อครับ
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin: 15px 0;">
+            <label style="display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer;">
+                <input type="checkbox" id="chk-us-screen" style="width:18px; height:18px;"> หน้าจอแสดงผลปกติ ไม่มีรอยแตกหัก
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer;">
+                <input type="checkbox" id="chk-us-power" style="width:18px; height:18px;"> ตัวเครื่องเปิดติด ชาร์จไฟเข้า แบตเตอรี่ปกติ
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer;">
+                <input type="checkbox" id="chk-us-access" style="width:18px; height:18px;"> อุปกรณ์เสริม เคส สายชาร์จ ปากกา ได้รับครบถ้วน
+            </label>
+        </div>
+
+        <div class="input-group" style="margin-bottom: 20px;">
+            <label style="font-size:13px; font-weight:bold; color: #475569;">✍️ พิมพ์ชื่อ-นามสกุลจริง เพื่อลงชื่อตรวจรับดิจิทัล:</label>
+            <input type="text" id="user_receive_sign" placeholder="พิมพ์ชื่อผู้รับเครื่อง..." style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; margin-top:5px; box-sizing: border-box;">
+        </div>
+
+        <button class="btn-modal-confirm" id="btn-user-confirm" onclick="confirmUserReceive()" style="background-color: #10b981;">ลงชื่อยืนยันการรับเครื่อง</button>
+        <button class="btn-modal-close" onclick="closeUserChecklistModal()">ปิดหน้าต่าง</button>
     </div>
 </div>
 
