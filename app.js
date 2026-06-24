@@ -52,6 +52,8 @@ function initializeLiff() {
         })
         .catch((err) => {
             console.error("LIFF Initialization failed", err);
+            // เผื่อเปิดทดสอบบนคอมแล้วโหลด LIFF ไม่ขึ้น ให้ฟอร์มธรรมดายังคงเปิดใช้งานได้
+            document.getElementById('login-page').style.display = 'block';
         });
 }
 
@@ -96,12 +98,12 @@ function checkUserRoleAndRender(lineId) {
 }
 
 // ==========================================
-// 3. MANUAL / NORMAL LOGIN SYSTEM
+// 3. MANUAL / NORMAL LOGIN SYSTEM (ดักจับเพื่อสิทธิ์แอดมิน)
 // ==========================================
 function handleNormalLogin(e) {
     e.preventDefault();
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
     
     if (user === "admin" && pass === "admin1234") {
         currentUser.lineId = "MANUAL_ADMIN";
@@ -109,6 +111,10 @@ function handleNormalLogin(e) {
         currentUser.img = "https://via.placeholder.com/60";
         currentUser.role = "Admin"; 
         
+        document.getElementById('u-img').src = currentUser.img;
+        document.getElementById('u-name').innerText = currentUser.name;
+        document.getElementById('u-id').innerText = "SYSTEM ACCESS";
+
         renderDashboard();
     } else if (user === "user" && pass === "1234") {
         currentUser.lineId = "MANUAL_USER";
@@ -116,6 +122,10 @@ function handleNormalLogin(e) {
         currentUser.img = "https://via.placeholder.com/60";
         currentUser.role = "User"; 
         
+        document.getElementById('u-img').src = currentUser.img;
+        document.getElementById('u-name').innerText = currentUser.name;
+        document.getElementById('u-id').innerText = "MANUAL ACCESS";
+
         renderDashboard();
     } else {
         alert("ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
