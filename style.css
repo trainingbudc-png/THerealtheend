@@ -33,41 +33,111 @@ body {
 }
 
 .login-card {
-    max-width: 420px;
+    max-width: 400px;
+    text-align: center;
+    margin-top: 10vh;
 }
 
 .dashboard-card {
-    max-width: 900px;
+    max-width: 800px;
 }
 
 h2 {
+    color: #0ea5e9;
     font-size: 24px;
-    font-weight: 700;
-    color: #0f172a;
     margin-bottom: 8px;
-    text-align: center;
+    font-weight: 700;
 }
 
 .subtitle {
-    font-size: 14px;
     color: #64748b;
+    font-size: 14px;
     margin-bottom: 25px;
-    text-align: center;
+}
+
+/* ==========================================
+   3. FORMS & INPUTS STYLES
+   ========================================== */
+.input-group {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    color: #475569;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.input-group input[type="text"],
+.input-group input[type="password"],
+.input-group input[type="number"],
+.input-group select,
+.input-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #334155;
+    background-color: #fff;
+    transition: all 0.2s ease;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* ==========================================
+   4. BUTTONS STYLES
+   ========================================== */
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    background-color: #0ea5e9;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    background-color: #0284c7;
+}
+
+.btn-submit:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
 }
 
 .divider {
     margin: 20px 0;
     color: #94a3b8;
+    font-size: 13px;
     position: relative;
-    font-size: 14px;
-    text-align: center;
 }
 
 .divider::before, .divider::after {
     content: "";
     position: absolute;
     top: 50%;
-    width: 38%;
+    width: 35%;
     height: 1px;
     background-color: #e2e8f0;
 }
@@ -75,234 +145,149 @@ h2 {
 .divider::before { left: 0; }
 .divider::after { right: 0; }
 
+.btn-line {
+    width: 100%;
+    padding: 12px;
+    background-color: #06C755;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-line:hover {
+    background-color: #05b34c;
+}
+
+.line-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
 /* ==========================================
-   3. USER PROFILE COMPONENT
+   5. USER PROFILE HEADER
    ========================================== */
 .user-profile {
     display: flex;
     align-items: center;
     gap: 15px;
-    background: #f1f5f9;
+    background-color: #f8fafc;
     padding: 15px;
     border-radius: 12px;
+    border: 1px solid #e2e8f0;
     margin-bottom: 25px;
 }
 
-.profile-img {
-    width: 55px;
-    height: 55px;
+#u-img {
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #0ea5e9;
 }
 
 .user-details {
-    flex-grow: 1;
+    text-align: left;
 }
 
-.user-name {
-    font-weight: 600;
+.user-details h3 {
     font-size: 16px;
     color: #1e293b;
+    margin-bottom: 2px;
 }
 
-/* ==========================================
-   4. FORM LAYOUT & INPUTS
-   ========================================== */
-.form-notice {
-    background-color: #fef2f2;
-    border-left: 4px solid #ef4444;
-    color: #dc2626;
-    padding: 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    text-align: left;
-    margin-bottom: 25px;
+.user-details p {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 6px;
 }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    text-align: left;
-    margin-bottom: 25px;
+.role-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
 }
 
-/* บังคับช่อง รายละเอียด และ คนนอกยืม ยืดเต็มแถวความกว้าง */
-.form-grid > .input-group:nth-child(6),
-.form-grid > .input-group:nth-child(7) {
-    grid-column: span 2;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.input-group label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #475569;
-}
-
-.input-group input[type="text"],
-.input-group input[type="password"],
-.input-group input[type="number"],
-.input-group input[type="date"],
-.input-group select,
-.input-group textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 14px;
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
     color: #334155;
-    outline: none;
-    transition: all 0.2s;
-}
-
-.input-group input:focus,
-.input-group select:focus,
-.input-group textarea:focus {
-    border-color: #0ea5e9;
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-}
-
-form {
-    height: auto !important;
-    overflow: visible !important;
+    margin-bottom: 15px;
+    text-align: left;
+    border-left: 4px solid #0ea5e9;
+    padding-left: 10px;
 }
 
 /* ==========================================
-   5. BUTTONS STYLES
+   6. RESPONSIVE TABLES STYLES
    ========================================== */
-button {
-    font-family: inherit;
-    transition: all 0.2s;
-    cursor: pointer;
-}
-
-.btn-submit {
-    background-color: #0f172a;
-    color: white;
-    border: none;
+.table-responsive {
     width: 100%;
-    padding: 12px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
-    font-weight: 600;
-    font-size: 15px;
 }
 
-.btn-submit:hover { background-color: #1e293b; }
-
-.btn-line {
-    background-color: #06C755;
-    color: white;
-    border: none;
+table {
     width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.btn-line:hover { background-color: #05b34c; }
-
-.line-icon {
-    width: 22px;
-    height: 22px;
-    fill: currentColor;
-}
-
-.btn-logout {
-    background-color: #fee2e2;
-    color: #ef4444;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
+    border-collapse: collapse;
+    text-align: left;
     font-size: 13px;
+}
+
+th, td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+    background-color: #f1f5f9;
+    color: #475569;
     font-weight: 600;
 }
 
-.btn-logout:hover { background-color: #fecaca; }
+tr:last-child td {
+    border-bottom: none;
+}
 
-.btn-action-submit {
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.btn-table-action {
     background-color: #0ea5e9;
     color: white;
     border: none;
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
     font-weight: 600;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 10px;
 }
 
-.btn-action-submit:hover { background-color: #0284c7; }
-
-/* ==========================================
-   6. DATA TABLES
-   ========================================== */
-.admin-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    background: #ffffff;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.admin-table th, .admin-table td {
-    padding: 12px 15px;
-    border: 1px solid #e2e8f0;
-    text-align: center;
-    font-size: 14px;
-}
-
-.admin-table th {
-    background-color: #f1f5f9;
-    color: #475569;
-    font-weight: bold;
-}
-
-.btn-action-process {
-    background-color: #d97706;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.btn-action-return {
-    background-color: #6366f1;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
+.btn-table-action:hover {
+    background-color: #0284c7;
 }
 
 /* ==========================================
-   7. MODAL SYSTEM (ปรับปรุง Layer ซ่อนหน้าต่างให้กดได้อิสระ)
+   7. MODAL POPUPS STYLES
    ========================================== */
-.modal {
-    display: none; 
+.modal-overlay {
     position: fixed; 
     top: 0; 
     left: 0; 
@@ -341,37 +326,37 @@ button {
     border: none;
     padding: 12px 20px;
     border-radius: 8px;
-    font-size: 14px;
-    font-weight: bold;
     cursor: pointer;
-    width: 100%;
-    margin-top: 15px;
+    transition: background-color 0.2s;
 }
 
-.btn-modal-close {
-    background-color: #f1f5f9;
-    color: #475569;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 8px;
+.btn-modal-confirm:hover {
+    background-color: #0284c7;
 }
 
-.btn-modal-close:hover { background-color: #e2e8f0; }
+.btn-modal-confirm:disabled {
+    background-color: #94a3b8;
+}
 
-@media (max-width: 640px) {
+/* ==========================================
+   8. MOBILE RESPONSIVE MEDIA QUERIES
+   ========================================== */
+@media (max-width: 600px) {
     .form-grid {
         grid-template-columns: 1fr;
     }
-    .form-grid > .input-group:nth-child(6),
-    .form-grid > .input-group:nth-column(7) {
-        grid-column: span 1;
+    .form-grid > .input-group:nth-child(7) {
+        grid-column: span 1 !important;
     }
-    .admin-table {
-        display: block;
-        overflow-x: auto;
+    body {
+        padding: 10px;
+    }
+    .login-card, .dashboard-card {
+        padding: 15px;
+        margin: 5px auto;
+    }
+    th, td {
+        padding: 8px 10px;
+        font-size: 12px;
     }
 }
