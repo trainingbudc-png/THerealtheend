@@ -24,23 +24,24 @@ function toggleOutsiderFields() {
     const nameInput = document.getElementById('outsider_name');
     const phoneInput = document.getElementById('outsider_phone');
 
-    if (isChecked) {
-        infoWrap.style.display = 'block';
-        nameInput.setAttribute('required', 'required');
-        phoneInput.setAttribute('required', 'required');
-    } else {
-        infoWrap.style.display = 'none';
-        nameInput.removeAttribute('required');
-        phoneInput.removeAttribute('required');
-        nameInput.value = '';
-        phoneInput.value = '';
+    if (infoWrap) {
+        if (isChecked) {
+            infoWrap.style.display = 'block';
+            nameInput.setAttribute('required', 'required');
+            phoneInput.setAttribute('required', 'required');
+        } else {
+            infoWrap.style.display = 'none';
+            nameInput.removeAttribute('required');
+            phoneInput.removeAttribute('required');
+            nameInput.value = '';
+            phoneInput.value = '';
+        }
     }
 }
 
 function initializeLiff() {
     liff.init({ liffId: LIFF_ID })
         .then(() => {
-            // สแตนด์บายที่หน้า Login เสมอ
             document.getElementById('login-page').style.display = 'block';
             document.getElementById('dashboard-page').style.display = 'none';
             
@@ -77,26 +78,31 @@ function getUserLineProfile() {
         })
         .catch(err => {
             console.error("Error getting profile", err);
+            // ป้องกันกรณีเข้า LINE ในเบราว์เซอร์อื่นแล้ว Profile ไม่มา ให้ข้ามไปรันหน้าเว็บได้เลย
+            currentUser.lineId = "LINE_USER_ERROR";
+            currentUser.name = "ผู้ใช้งานทั่วไป (LINE)";
+            renderDashboard();
         });
 }
 
+// 🔥 ดักจับข้อผิดพลาดจุดนี้: ถ้าหลังบ้านพังหรือไม่มีข้อมูล ให้ข้ามไปเปิดหน้า Dashboard เป็น User ทันที
 function checkUserRoleAndRender(lineId) {
     fetch(`${BACKEND_URL}?action=checkRole&lineId=${lineId}`)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Network status not OK");
+            return res.json();
+        })
         .then(data => {
-            currentUser.role = data.role;
+            currentUser.role = data.role || "User";
             renderDashboard();
         })
         .catch(err => {
-            console.error("Check role failed, default to User", err);
-            currentUser.role = "User";
-            renderDashboard();
+            console.error("Check role failed, default to User เพื่อป้องกันหน้าจอค้าง", err);
+            currentUser.role = "User"; // ดักจับกรณีชีตหลังบ้านไม่ตอบสนอง
+            renderDashboard(); // บังคับแสดงผลหน้าจอ
         });
 }
 
-// ==========================================
-// 3. SYSTEM LOGIN (ล็อกอินของแอดมินระบบ)
-// ==========================================
 function handleNormalLogin(e) {
     e.preventDefault();
     const user = document.getElementById('username').value.trim();
@@ -118,7 +124,6 @@ function handleNormalLogin(e) {
     }
 }
 
-// 🔥 ปรับปรุงฟังก์ชันควบคุมหน้าจอ ไม่ให้เรียกตารางฝั่งผู้ใช้มาพังระบบหากล็อกอินด้วยแอดมิน
 function renderDashboard() {
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('dashboard-page').style.display = 'block';
@@ -129,7 +134,6 @@ function renderDashboard() {
         document.getElementById('u-role').style.color = "#0369a1";
         document.getElementById('admin-section').style.display = 'block';
         
-        // แอดมินให้โหลดเฉพาะตารางฝั่งแอดมินอย่างเดียว
         fetchAdminRequests();
     } else {
         document.getElementById('u-role').innerText = "สถานะ: User 👤";
@@ -137,7 +141,6 @@ function renderDashboard() {
         document.getElementById('u-role').style.color = "#475569";
         document.getElementById('admin-section').style.display = 'none';
         
-        // ยูสเซอร์ทั่วไปให้โหลดเฉพาะประวัติตัวเอง
         fetchUserRequests();
     }
 }
@@ -181,7 +184,6 @@ function submitBorrowRequest(e) {
             document.getElementById('borrowForm').reset();
             toggleOutsiderFields();
             
-            // เช็กสถานะเพื่อรีโหลดตารางอย่างถูกต้องและทันที
             if (currentUser.role === 'Admin') {
                 fetchAdminRequests();
             } else {
@@ -249,10 +251,11 @@ function fetchUserRequests() {
         })
         .catch(err => {
             console.error("Error loading user table:", err);
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#ef4444;">โหลดข้อมูลประวัติล้มเหลว</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">ยังไม่มีประวัติการส่งคำขอยืมอุปกรณ์</td></tr>`;
         });
 }
 
+// (ฟังก์ชันที่เหลือเหมือนเดิม...)
 function fetchAdminRequests() {
     const tbody = document.getElementById('admin-table-body');
     if (!tbody) return;
@@ -295,9 +298,6 @@ function fetchAdminRequests() {
         });
 }
 
-// ==========================================
-// 6. MODALS INTERACTION & WORKFLOWS
-// ==========================================
 function openChecklistModal(jobId, type, qty) {
     document.getElementById('modal-job-id').value = jobId;
     document.getElementById('modal-display-jobid').innerText = jobId;
