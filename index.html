@@ -82,6 +82,7 @@
                 </div>
             </div>
 
+            <!-- กล่องคนนอกยืม: ออกแบบให้อยู่นอก Grid เพื่อกระจายตัวเปิดปิดได้อิสระ ไม่ซ้อนทับปุ่ม -->
             <div class="input-group" style="margin-top: 20px; width: 100%; text-align: left;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
                     <input type="checkbox" id="is_outsider" onchange="toggleOutsiderField()" style="width: 20px; height: 20px; cursor: pointer;">
@@ -90,7 +91,7 @@
                 
                 <div id="outsider-detail-wrap" style="display: none; margin-top: 15px; background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 8px;">
                     <label for="outsider_detail" style="color: #ea580c; font-weight: bold; font-size: 14px; display: block; margin-bottom: 8px;">📝 รายละเอียดคนนอกยืม (เช่น ชื่อ-นามสกุล / สังกัดหน่วยงาน / เบอร์โทรศัพท์)</label>
-                    <textarea id="outsider_detail" rows="2" placeholder="กรุณาระบุข้อมูลติดต่อหรือหน่วยงานของคนนอกเพื่อใช้ติดตามเครื่อง..." style="border: 1px solid #f97316; width: 100%; padding: 10px; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 14px;"></textarea>
+                    <textarea id="outsider_detail" rows="2" placeholder="กรุณาระบุข้อมูลติดต่อหรือหน่วยงานของคนนอกเพื่อใช้ติดตามเครื่อง..." style="border: 1px solid #f97316; width: 100%; padding: 10px; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 14px; background: #ffffff;"></textarea>
                 </div>
             </div>
 
@@ -100,11 +101,12 @@
             </button>
         </form>
 
+        <!-- ตารางประวัติการติดตามและตรวจรับเครื่องของฝั่งผู้ยืม (List ที่ 2) -->
         <div style="margin-top: 40px; border-top: 2px dashed #cbd5e1; padding-top: 25px;">
             <h3 style="text-align: left; color:#10b981; margin-bottom: 5px; font-size: 18px;">📋 รายการคำขอของคุณและการตรวจรับอุปกรณ์</h3>
-            <p style="text-align: left; color:#64748b; font-size:13px; margin-bottom:15px;">เมื่อแอดมินเตรียมเครื่องให้สำเร็จ (List 1 ผ่าน) สถานะจะขยับ และปุ่มตรวจรับจะแสดงให้กดครับ</p>
+            <p style="text-align: left; color:#64748b; font-size:13px; margin-bottom:15px;">เมื่อแอดมินตรวจเครื่องฝั่งโน้นผ่านแล้ว สถานะจะเปลี่ยน และมีปุ่มขึ้นมาให้ท่านคลิกตรวจรับอุปกรณ์ครับ</p>
             
-            <table class="admin-table" style="border-color: #10b981;">
+            <table class="admin-table" style="border-color: #10b981; width:100%;">
                 <thead>
                     <tr style="background-color: #10b981; color: white;">
                         <th style="width: 15%;">เลขคำขอ</th>
@@ -115,7 +117,7 @@
                 </thead>
                 <tbody id="user-table-body">
                     <tr>
-                        <td colspan="4" style="text-align:center; color:#64748b; padding: 20px;">⏳ กำลังโหลดข้อมูลประวัติยืมจาก Line ID ของคุณ...</td>
+                        <td colspan="4" style="text-align:center; color:#64748b; padding: 20px;">⏳ กำลังโหลดข้อมูลประวัติยืมจาก LINE ID ของคุณ...</td>
                     </tr>
                 </tbody>
             </table>
@@ -126,7 +128,7 @@
         <h3 style="text-align: left; color:#1e293b; margin-bottom: 5px;">ตารางจัดการคำขอยืมอุปกรณ์</h3>
         <p style="text-align: left; color:#64748b; font-size:14px; margin-bottom:20px;">แอดมินสามารถตรวจสอบคำขอ กดเตรียมอุปกรณ์ และยืนยันการจ่ายเครื่องได้จากตารางด้านล่างนี้</p>
         
-        <table class="admin-table">
+        <table class="admin-table" style="width:100%;">
             <thead>
                 <tr>
                     <th style="width: 12%;">เลขคำขอ</th>
@@ -146,13 +148,14 @@
     </div>
 </div>
 
+<!-- Modal 1: สำหรับแอดมินตรวจสเป็กปล่อยเครื่อง (List 1) -->
 <div class="modal" id="checklist-modal">
     <div class="modal-content">
         <div class="modal-title">1. [ ผู้เตรียมเครื่อง ] Check List iPad</div>
         
-        <p style="font-size:14px; margin: 5px 0;"><strong>รายการคำขอที่:</strong> <span id="md-job-id" style="color:#0ea5e9; font-weight:bold;">-</span></p>
-        <p style="font-size:14px; margin: 5px 0;"><strong>ผู้เตรียมเครื่อง (Admin):</strong> <span id="md-admin-name" style="color:#334155;">-</span></p>
-        <p style="font-size:14px; margin: 5px 0;"><strong>ผู้รับเครื่อง (User):</strong> <span id="md-user-name" style="color:#334155; font-weight:bold;">-</span></p>
+        <p style="font-size:14px; margin: 5px 0; text-align:left;"><strong>รายการคำขอที่:</strong> <span id="md-job-id" style="color:#0ea5e9; font-weight:bold;">-</span></p>
+        <p style="font-size:14px; margin: 5px 0; text-align:left;"><strong>ผู้เตรียมเครื่อง (Admin):</strong> <span id="md-admin-name" style="color:#334155;">-</span></p>
+        <p style="font-size:14px; margin: 5px 0; text-align:left;"><strong>ผู้รับเครื่อง (User):</strong> <span id="md-user-name" style="color:#334155; font-weight:bold;">-</span></p>
         
         <div id="dynamic-checklist-container"></div>
 
@@ -161,6 +164,7 @@
     </div>
 </div>
 
+<!-- Modal 2: สำหรับผู้ยืมตรวจรับเครื่องสภาพดี (List 2) -->
 <div class="modal" id="user-checklist-modal" style="display: none; align-items: center; justify-content: center;">
     <div class="modal-content" style="max-width: 480px; text-align: left;">
         <div class="modal-title" style="color: #10b981; border-color: #10b981;">2. [ ผู้รับเครื่อง ] ใบตรวจรับอุปกรณ์</div>
@@ -169,7 +173,7 @@
         <p style="font-size:14px; margin: 5px 0;"><strong>ครุภัณฑ์ที่แอดมินจัดจ่าย:</strong> <span id="us-md-devices" style="color:#16a34a; font-weight:bold;">-</span></p>
         
         <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px; font-size:12px; color:#166534; margin: 12px 0;">
-            💡 <strong>คำแนะนำ:</strong> โปรดตรวจสอบตัวเครื่องและอุปกรณ์เสริมจริงที่ได้จากแอดมิน หากสมบูรณ์ดีให้ติ๊กถูกให้ครบทุกข้อครับ
+            💡 <strong>คำแนะนำ:</strong> โปรดตรวจสอบตัวเครื่องและอุปกรณ์เสริมจริงที่ได้รับจากแอดมิน หากสมบูรณ์ดีให้ติ๊กถูกให้ครบทุกข้อครับ
         </div>
 
         <div style="display:flex; flex-direction:column; gap:10px; margin: 15px 0;">
@@ -189,8 +193,8 @@
             <input type="text" id="user_receive_sign" placeholder="พิมพ์ชื่อผู้รับเครื่อง..." style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; margin-top:5px; box-sizing: border-box;">
         </div>
 
-        <button class="btn-modal-confirm" id="btn-user-confirm" onclick="confirmUserReceive()" style="background-color: #10b981;">ลงชื่อยืนยันการรับเครื่อง</button>
-        <button class="btn-modal-close" onclick="closeUserChecklistModal()">ปิดหน้าต่าง</button>
+        <button class="btn-modal-confirm" id="btn-user-confirm" onclick="confirmUserReceive()" style="background-color: #10b981; width:100%; margin-bottom:10px;">ลงชื่อยืนยันการรับเครื่อง</button>
+        <button class="btn-modal-close" onclick="closeUserChecklistModal()" style="width:100%;">ปิดหน้าต่าง</button>
     </div>
 </div>
 
