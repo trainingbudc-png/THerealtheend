@@ -37,16 +37,13 @@ function toggleOutsiderFields() {
     }
 }
 
+// ⚠️ เช็กความปลอดภัยเพื่อให้หน้าล็อกอินพร้อมเสมอ
 function initializeLiff() {
     liff.init({ liffId: LIFF_ID })
         .then(() => {
-            // ตั้งรับไว้ที่หน้า Login เสมอ ป้องกันการตัดข้ามไปเองแบบไร้ทิศทาง
+            // บังคับให้ค้างไว้ที่หน้าล็อกอินหลักก่อนเสมอ
             document.getElementById('login-page').style.display = 'block';
             document.getElementById('dashboard-page').style.display = 'none';
-            
-            if (liff.isLoggedIn()) {
-                getUserLineProfile();
-            }
         })
         .catch((err) => {
             console.error("LIFF Initialization failed", err);
@@ -95,26 +92,26 @@ function checkUserRoleAndRender(lineId) {
 }
 
 // ==========================================
-// 3. SYSTEM LOGIN (สำหรับแอดมิน ล็อกอินรอบเดียวจบ ดึงรหัส password ตรง ID)
+// 3. MANUAL / NORMAL LOGIN SYSTEM
 // ==========================================
 function handleNormalLogin(e) {
     e.preventDefault();
     const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value.trim(); // แก้จากเดิมที่เป็น 'pass' ให้แมตช์ตาม HTML แล้ว
+    const pass = document.getElementById('password').value.trim(); // ล็อกตรงกับไอดีใน html แน่นอน
     
-    if (user === "admin" && pass === "admin1234") {
+    if (user === "admin" && pass === "admin1234") { 
         currentUser.lineId = "MANUAL_ADMIN";
-        currentUser.name = "ผู้ดูแลระบบ (Manual Admin)";
+        currentUser.name = "ผู้ดูแลระบบ (Admin)";
         currentUser.img = "https://via.placeholder.com/60";
         currentUser.role = "Admin"; 
         
         document.getElementById('u-img').src = currentUser.img;
         document.getElementById('u-name').innerText = currentUser.name;
-        document.getElementById('u-id').innerText = "SYSTEM ACCESS";
+        document.getElementById('u-id').innerText = "สิทธิ์: ผู้ดูแลระบบสูงสุด";
 
         renderDashboard();
     } else {
-        alert("❌ ชื่อผู้ใช้งานหรือรหัสผ่านผู้ดูแลระบบไม่ถูกต้อง");
+        alert("❌ ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
     }
 }
 
@@ -141,7 +138,7 @@ function renderDashboard() {
 }
 
 // ==========================================
-// 4. BORROW REQUEST FORM SUBMISSION (ผูกการโหลดตารางร่วมกันแบบทันที)
+// 4. BORROW REQUEST FORM SUBMISSION
 // ==========================================
 function submitBorrowRequest(e) {
     e.preventDefault();
@@ -179,9 +176,9 @@ function submitBorrowRequest(e) {
             document.getElementById('borrowForm').reset();
             toggleOutsiderFields();
             
-            // อัปเดตข้อมูลตารางทั้งสองฝั่งให้อัตโนมัติทันทีเพื่อให้เห็นการเปลี่ยนแปลงร่วมกัน
-            fetchUserRequests();
+            // เรียกทั้งสองตารางให้อัปเดตข้อมูลขึ้นมาใหม่พร้อมกันแบบเรียลไทม์ทันที
             fetchAdminRequests();
+            fetchUserRequests();
         } else {
             alert("❌ เกิดข้อผิดพลาด: " + data.message);
         }
@@ -271,7 +268,7 @@ function fetchAdminRequests() {
                     actionTd = `<button class="btn-table-action" style="background-color: #ef4444;" onclick="processReturnItem('${row.jobId}')">🔄 กดรับคืนเครื่อง</button>`;
                 }
 
-                let outsiderBadge = row.isOutsider === "Alice" || row.isOutsider === "ใช่" ? `<br><span style="background:#ffedd5; color:#ea580c; padding:2px 6px; border-radius:4px; font-size:11px; display:inline-block; margin-top:3px;">👤 คนนอก: ${row.outsiderName} (${row.outsiderPhone})</span>` : "";
+                let outsiderBadge = row.isOutsider === "ใช่" ? `<br><span style="background:#ffedd5; color:#ea580c; padding:2px 6px; border-radius:4px; font-size:11px; display:inline-block; margin-top:3px;">👤 คนนอก: ${row.outsiderName} (${row.outsiderPhone})</span>` : "";
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -388,7 +385,7 @@ function confirmUserReceive() {
     const signName = document.getElementById('user_receive_sign').value.trim();
 
     if(!signName) {
-        alert("⚠️ โปรดพิมพ์ชื่อ-นามสกุลจริงของคุณ เพื่อใช้เป็นหลักฐานการเซ็นรับเครื่องดิจิทัล");
+        alert("⚠️ โปรดิมพ์ชื่อ-นามสกุลจริงของคุณ เพื่อใช้เป็นหลักฐานการเซ็นรับเครื่องดิจิทัล");
         return;
     }
 
@@ -420,7 +417,7 @@ function confirmUserReceive() {
         if(data.success) {
             alert("🎉 ยืนยันการรับเครื่องเสร็จสมบูรณ์! ระบบได้เปลี่ยนสถานะเป็น 'กำลังใช้งาน' เรียบร้อยครับ");
             closeUserReceiveModal();
-            fetchAdminRequests();
+            if (currentUser.role === 'Admin') fetchAdminRequests();
             fetchUserRequests();
         } else {
             alert("❌ เกิดความผิดพลาดจากระบบ: " + data.message);
