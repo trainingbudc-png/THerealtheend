@@ -18,9 +18,10 @@ window.onload = function() {
     initializeLiff();
 };
 
+// ฟังก์ชันเปิด-ปิด ช่องกรอกข้อมูลบุคคลภายนอก (แก้ไข ID ให้ตรงกับ index.html แล้ว)
 function toggleOutsiderFields() {
     const isChecked = document.getElementById('is_outsider').checked;
-    const infoWrap = document.getElementById('outsider-info-wrap');
+    const infoWrap = document.getElementById('outsider_info_fields');
     const nameInput = document.getElementById('outsider_name');
     const phoneInput = document.getElementById('outsider_phone');
 
@@ -42,17 +43,11 @@ function toggleOutsiderFields() {
 function initializeLiff() {
     liff.init({ liffId: LIFF_ID })
         .then(() => {
-            document.getElementById('login-page').style.display = 'block';
-            document.getElementById('dashboard-page').style.display = 'none';
-            
             if (liff.isLoggedIn()) {
                 getUserLineProfile();
             }
         })
-        .catch((err) => {
-            console.error("LIFF Initialization failed", err);
-            document.getElementById('login-page').style.display = 'block';
-        });
+        .catch(err => console.error("LIFF Init Error", err));
 }
 
 function handleLineLogin() {
@@ -69,134 +64,134 @@ function getUserLineProfile() {
             currentUser.lineId = profile.userId;
             currentUser.name = profile.displayName;
             currentUser.img = profile.pictureUrl || "https://via.placeholder.com/60";
-
-            document.getElementById('u-img').src = currentUser.img;
-            document.getElementById('u-name').innerText = currentUser.name;
-            document.getElementById('u-id').innerText = "LINE ID: " + currentUser.lineId;
-
-            checkUserRoleAndRender(currentUser.lineId);
+            
+            checkUserRoleAndAccess();
         })
-        .catch(err => {
-            console.error("Error getting profile", err);
-            currentUser.lineId = "LINE_USER_ERROR";
-            currentUser.name = "ผู้ใช้งานทั่วไป (LINE)";
-            renderDashboard();
-        });
+        .catch(err => console.error("Error getting profile", err));
 }
 
-function checkUserRoleAndRender(lineId) {
-    // ป้องกันกรณีสิทธิ์เช็กช้า ตั้งเวลาตัดตอนไว้ที่ 6 วินาที
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 6000);
-
-    fetch(`${BACKEND_URL}?action=checkRole&lineId=${lineId}`, { signal: controller.signal })
-        .then(res => res.json())
-        .then(data => {
-            clearTimeout(id);
-            currentUser.role = data.role || "User";
-            renderDashboard();
-        })
-        .catch(err => {
-            clearTimeout(id);
-            console.error("Check role failed or timeout, default to User", err);
-            currentUser.role = "User"; 
-            renderDashboard(); 
-        });
-}
-
-function handleNormalLogin(e) {
-    e.preventDefault();
+// ฟังก์ชันเข้าสู่ระบบด้วยบัญชีระบบ (Username / Password)
+function handleNormalLogin(event) {
+    event.preventDefault();
     const user = document.getElementById('username').value.trim();
     const pass = document.getElementById('password').value.trim();
-    
-    if (user === "admin" && pass === "admin1234") {
-        currentUser.lineId = "MANUAL_ADMIN";
-        currentUser.name = "ผู้ดูแลระบบ (Manual Admin)";
+
+    if(user === 'admin' && pass === 'admin') {
+        currentUser.lineId = "SYSTEM_ADMIN";
+        currentUser.name = "ผู้ดูแลระบบ (Admin)";
         currentUser.img = "https://via.placeholder.com/60";
-        currentUser.role = "Admin"; 
+        currentUser.role = "Admin";
+
+        // เปลี่ยนหน้าจอแสดงผล
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('dashboard-page').style.display = 'block';
         
+        // อัปเดตหน้าโปรไฟล์
         document.getElementById('u-img').src = currentUser.img;
         document.getElementById('u-name').innerText = currentUser.name;
-        document.getElementById('u-id').innerText = "SYSTEM ACCESS";
-
-        renderDashboard();
-    } else {
-        alert("❌ ชื่อผู้ใช้งานหรือรหัสผ่านผู้ดูแลระบบไม่ถูกต้อง");
-    }
-}
-
-function renderDashboard() {
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('dashboard-page').style.display = 'block';
-    
-    if (currentUser.role === 'Admin') {
+        document.getElementById('u-id').innerText = "บัญชีควบคุมระบบ";
         document.getElementById('u-role').innerText = "สถานะ: Admin 🛠️";
-        document.getElementById('u-role').style.backgroundColor = "#e0f2fe";
-        document.getElementById('u-role').style.color = "#0369a1";
+        document.getElementById('u-role').className = "user-role-badge admin-role";
+
+        // แสดงผลแผงแอดมิน
         document.getElementById('admin-section').style.display = 'block';
         
         fetchAdminRequests();
-    } else {
-        document.getElementById('u-role').innerText = "สถานะ: User 👤";
-        document.getElementById('u-role').style.backgroundColor = "#f1f5f9";
-        document.getElementById('u-role').style.color = "#475569";
-        document.getElementById('admin-section').style.display = 'none';
-        
         fetchUserRequests();
+        alert("🔓 เข้าสู่ระบบในฐานะ Admin สำเร็จ!");
+    } else {
+        alert("❌ ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง!");
     }
 }
 
-// ==========================================
-// 4. BORROW REQUEST FORM SUBMISSION
-// ==========================================
-function submitBorrowRequest(e) {
-    e.preventDefault();
+function checkUserRoleAndAccess() {
+    fetch(`${BACKEND_URL}?action=checkRole&lineId=${currentUser.lineId}&name=${encodeURIComponent(currentUser.name)}`)
+        .then(res => res.json())
+        .then(data => {
+            currentUser.role = data.role || "User";
+            
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('dashboard-page').style.display = 'block';
+            
+            document.getElementById('u-img').src = currentUser.img;
+            document.getElementById('u-name').innerText = currentUser.name;
+            document.getElementById('u-id').innerText = "LINE ID: " + currentUser.lineId.substring(0,10) + "...";
+            
+            const roleBadge = document.getElementById('u-role');
+            if(currentUser.role === 'Admin') {
+                roleBadge.innerText = "สถานะ: Admin 🛠️";
+                roleBadge.className = "user-role-badge admin-role";
+                document.getElementById('admin-section').style.display = 'block';
+                fetchAdminRequests();
+            } else {
+                roleBadge.innerText = "สถานะ: User 👤";
+                roleBadge.className = "user-role-badge";
+                document.getElementById('admin-section').style.display = 'none';
+            }
+            
+            fetchUserRequests();
+        })
+        .catch(err => {
+            console.error("Role Check Error:", err);
+            // กรณีติดต่อ Server ไม่ได้ ให้เข้าหน้า User ไปก่อน
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('dashboard-page').style.display = 'block';
+            fetchUserRequests();
+        });
+}
+
+function submitBorrowRequest(event) {
+    event.preventDefault();
     
     const btn = document.getElementById('btn-submit-req');
     const btnText = document.getElementById('btn-submit-text');
     
     btn.disabled = true;
-    btnText.innerText = "⏳ กำลังส่งบันทึกคำขอ...";
+    btnText.innerText = "กำลังส่งคำขอ...";
 
-    const isOutsiderChecked = document.getElementById('is_outsider').checked;
+    const type = document.getElementById('device_type').value;
+    const qty = document.getElementById('borrow_qty').value;
+    const start = document.getElementById('start_date').value;
+    const end = document.getElementById('end_date').value;
+    const detail = document.getElementById('borrow_detail').value;
+    
+    const isOutsider = document.getElementById('is_outsider').checked ? "ใช่" : "ไม่ใช่";
+    const outsiderName = document.getElementById('outsider_name').value || "-";
+    const outsiderPhone = document.getElementById('outsider_phone').value || "-";
 
-    const payload = {
-        action: "submitRequest",
-        lineId: currentUser.lineId,
-        userName: currentUser.name,
-        deviceType: document.getElementById('device_type').value,
-        qty: document.getElementById('borrow_qty').value,
-        startDate: document.getElementById('start_date').value,
-        endDate: document.getElementById('end_date').value,
-        detail: document.getElementById('borrow_detail').value,
-        isOutsider: isOutsiderChecked ? "ใช่" : "ไม่ใช่",
-        outsiderName: isOutsiderChecked ? document.getElementById('outsider_name').value : "",
-        outsiderPhone: isOutsiderChecked ? document.getElementById('outsider_phone').value : ""
-    };
+    const formData = new URLSearchParams();
+    formData.append('action', 'borrowDevice');
+    formData.append('lineId', currentUser.lineId);
+    formData.append('userName', currentUser.name);
+    formData.append('deviceType', type);
+    formData.append('qty', qty);
+    formData.append('startDate', start);
+    formData.append('endDate', end);
+    formData.append('detail', detail);
+    formData.append('isOutsider', isOutsider);
+    formData.append('outsiderName', outsiderName);
+    formData.append('outsiderPhone', outsiderPhone);
 
     fetch(BACKEND_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
     })
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            alert(`🎉 บันทึกคำขอสำเร็จ!\nรหัสอ้างอิงคำขอของคุณคือ: ${data.jobId}`);
+            alert("🎉 ส่งคำขอยืมอุปกรณ์สำเร็จแล้ว! กรุณารอแอดมินอนุมัติ");
             document.getElementById('borrowForm').reset();
             toggleOutsiderFields();
-            
-            if (currentUser.role === 'Admin') {
-                fetchAdminRequests();
-            } else {
-                fetchUserRequests();
-            }
+            fetchUserRequests();
+            if(currentUser.role === 'Admin') fetchAdminRequests();
         } else {
             alert("❌ เกิดข้อผิดพลาด: " + data.message);
         }
     })
     .catch(err => {
-        console.error("Error submitting request:", err);
-        alert("❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์หลังบ้านได้");
+        console.error("Submit Error:", err);
+        alert("❌ ไม่สามารถส่งข้อมูลได้ กรุณาตรวจสอบอินเทอร์เน็ต");
     })
     .finally(() => {
         btn.disabled = false;
@@ -204,116 +199,149 @@ function submitBorrowRequest(e) {
     });
 }
 
-// ==========================================
-// 5. FETCH DATA & RENDER TABLES
-// ==========================================
 function fetchUserRequests() {
     const tbody = document.getElementById('user-table-body');
-    if (!tbody) return;
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #94a3b8;">กำลังดึงประวัติของคุณ...</td></tr>`;
 
-    // 🔥 ตั้งระบบตัดตอน (Timeout) ไว้ที่ 6 วินาที เพื่อไม่ให้ข้อความ "กำลังดึงข้อมูล" ค้างคาใจผู้ใช้งาน
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 6000);
-
-    fetch(`${BACKEND_URL}?action=getUserRequests&lineId=${currentUser.lineId}`, { signal: controller.signal })
+    fetch(`${BACKEND_URL}?action=getUserRequests&lineId=${currentUser.lineId}`)
         .then(res => res.json())
         .then(data => {
-            clearTimeout(id);
             tbody.innerHTML = "";
-            if(data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">ยังไม่มีประวัติการส่งคำขอยืมอุปกรณ์</td></tr>`;
+            if(!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #94a3b8;">ไม่พบประวัติการยืมอุปกรณ์ของคุณ</td></tr>`;
                 return;
             }
+            
+            data.forEach(item => {
+                let statusClass = "status-pending";
+                if(item.status === "อนุมัติพร้อมรับเครื่อง") statusClass = "status-approved";
+                if(item.status === "กำลังใช้งาน") statusClass = "status-using";
+                if(item.status === "คืนสำเร็จ") statusClass = "status-returned";
+                if(item.status === "ปฏิเสธคำขอ") statusClass = "status-rejected";
 
-            data.forEach(row => {
-                let statusStyle = "";
                 let actionBtn = "";
-
-                if(row.status.startsWith("1")) statusStyle = "background-color: #fef3c7; color: #d97706;";
-                else if(row.status.startsWith("2")) {
-                    statusStyle = "background-color: #dbeafe; color: #2563eb; font-weight: bold;";
-                    actionBtn = `<br><button class="btn-table-action" style="background:#10b981; margin-top:6px; padding:4px 8px; font-size:11px;" onclick="openUserReceiveModal('${row.jobId}', '${row.assignedDevices}')">👉 กดยืนยันรับเครื่อง</button>`;
+                if(item.status === "อนุมัติพร้อมรับเครื่อง") {
+                    actionBtn = `<br><button class="btn-table-action" style="background-color:#10b981; margin-top:5px;" onclick="openUserReceiveModal('${item.jobId}', '${item.assignedDevice || '-'}')">📦 ตรวจรับเครื่อง</button>`;
                 }
-                else if(row.status.startsWith("3")) statusStyle = "background-color: #d1fae5; color: #059669;";
-                else if(row.status.startsWith("4")) statusStyle = "background-color: #f1f5f9; color: #64748b; text-decoration: line-through;";
 
-                let outsiderTag = row.isOutsider === "ใช่" ? `<br><small style="color: #ea580c; font-weight:bold;">👤 คนนอกยืม: ${row.outsiderName} (${row.outsiderPhone})</small>` : "";
+                let outsiderBadge = "";
+                if(item.isOutsider === "ใช่") {
+                    outsiderBadge = `<div style="font-size:11px; color:#ea580c; background-color:#ffedd5; padding:2px 6px; border-radius:4px; display:inline-block; margin-top:3px;">ยืมให้: ${item.outsiderName}</div>`;
+                }
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${row.jobId}</strong></td>
-                    <td>
-                        <span style="font-weight:600; color:#334155;">${row.deviceType}</span> (${row.qty} เครื่อง)
-                        <div style="font-size:11px; color:#64748b; margin-top:2px;">📅 ${row.startDate} ถึง ${row.endDate}</div>
-                        ${outsiderTag}
-                    </td>
-                    <td>
-                        <span class="status-badge" style="${statusStyle}">${row.status}</span>
-                        ${actionBtn}
-                    </td>
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.jobId}</strong></td>
+                        <td>
+                            <div style="font-weight:600;">${item.deviceType} (${item.qty} เครื่อง)</div>
+                            <div style="font-size:12px; color:#64748b;">📅 ${item.startDate} ถึง ${item.endDate}</div>
+                            ${outsiderBadge}
+                        </td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${item.status}</span>
+                            ${actionBtn}
+                        </td>
+                    </tr>
                 `;
-                tbody.appendChild(tr);
             });
         })
         .catch(err => {
-            clearTimeout(id);
-            console.error("Error loading user table:", err);
-            // แสดงข้อความแจ้งเตือนอย่างเป็นมิตรแทนปล่อยให้ค้างคำว่ากำลังโหลด
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748b; font-size:13px;">🔄 เชื่อมต่อประวัติช้าชั่วคราว (แต่สามารถกรอกฟอร์มยืมด้านบนได้ปกติครับ)</td></tr>`;
+            console.error("Fetch User Error:", err);
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #ef4444;">โหลดข้อมูลประวัติไม่สำเร็จ</td></tr>`;
         });
 }
 
 function fetchAdminRequests() {
     const tbody = document.getElementById('admin-table-body');
-    if (!tbody) return;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8;">กำลังโหลดข้อมูลคำขอทั้งหมด...</td></tr>`;
 
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), 6000);
-
-    fetch(`${BACKEND_URL}?action=getAdminRequests`, { signal: controller.signal })
+    fetch(`${BACKEND_URL}?action=getAllRequests`)
         .then(res => res.json())
         .then(data => {
-            clearTimeout(id);
             tbody.innerHTML = "";
-            if(data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">ไม่มีรายการค้างดำเนินการสำหรับแอดมิน 🎉</td></tr>`;
+            if(!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8;">ไม่มีรายการคำขอในระบบ</td></tr>`;
                 return;
             }
 
-            data.forEach(row => {
-                let actionTd = "";
-                if(row.status.startsWith("1")) {
-                    actionTd = `<button class="btn-table-action" onclick="openChecklistModal('${row.jobId}', '${row.deviceType}', '${row.qty}')">⚙️ เตรียมอุปกรณ์</button>`;
-                } else if(row.status.startsWith("2")) {
-                    actionTd = `<span style="font-size:12px; color:#2563eb;">⏳ รอผู้ยืมกดรับเครื่อง</span>`;
-                } else if(row.status.startsWith("3")) {
-                    actionTd = `<button class="btn-table-action" style="background-color: #ef4444;" onclick="processReturnItem('${row.jobId}')">🔄 กดรับคืนเครื่อง</button>`;
+            data.forEach(item => {
+                let statusClass = "status-pending";
+                if(item.status === "อนุมัติพร้อมรับเครื่อง") statusClass = "status-approved";
+                if(item.status === "กำลังใช้งาน") statusClass = "status-using";
+                if(item.status === "คืนสำเร็จ") statusClass = "status-returned";
+                if(item.status === "ปฏิเสธคำขอ") statusClass = "status-rejected";
+
+                let actionHtml = "<span style='color:#94a3b8; font-size:12px;'>สิ้นสุดรายการ</span>";
+                
+                if(item.status === "รออนุมัติ") {
+                    actionHtml = `
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-table-action" onclick="openChecklistModal('${item.jobId}', '${item.deviceType}', '${item.qty}')">อนุมัติ</button>
+                            <button class="btn-table-action" style="background-color:#ef4444;" onclick="rejectRequest('${item.jobId}')">ปฏิเสธ</button>
+                        </div>
+                    `;
+                } else if(item.status === "กำลังใช้งาน") {
+                    actionHtml = `
+                        <button class="btn-table-action" style="background-color:#6366f1;" onclick="processReturnItem('${item.jobId}')">🔄 รับคืนเครื่อง</button>
+                    `;
+                } else if(item.status === "อนุมัติพร้อมรับเครื่อง") {
+                    actionHtml = `<span style="color:#0ea5e9; font-size:12px; font-weight:600;">รอผู้ยืมมาตรวจรับ</span>`;
                 }
 
-                let outsiderBadge = row.isOutsider === "ใช่" ? `<br><span style="background:#ffedd5; color:#ea580c; padding:2px 6px; border-radius:4px; font-size:11px; display:inline-block; margin-top:3px;">👤 คนนอก: ${row.outsiderName} (${row.outsiderPhone})</span>` : "";
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${row.jobId}</strong></td>
-                    <td><strong>${row.deviceType}</strong> (${row.qty} เครื่อง)${outsiderBadge}</td>
-                    <td><span style="font-size:13px;">${row.userName}</span></td>
-                    <td><span style="font-size:12px; color:#475569;">${row.status}</span></td>
-                    <td>${actionTd}</td>
+                let userDetail = `
+                    <div style="font-weight:600;">${item.userName}</div>
+                    <div style="font-size:11px; color:#94a3b8;">LINE ID: ${item.lineId.substring(0,6)}...</div>
                 `;
-                tbody.appendChild(tr);
+                if(item.isOutsider === "ใช่") {
+                    userDetail += `<div style="font-size:11px; color:#ea580c; font-weight:bold;">👤 คนนอก: ${item.outsiderName} (${item.outsiderPhone})</div>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.jobId}</strong></td>
+                        <td>
+                            <span style="font-weight:600; color:#334155;">${item.deviceType}</span> (${item.qty} เครื่อง)
+                            <div style="font-size:11px; color:#64748b; margin-top:2px;">📝 เหตุผล: ${item.detail}</div>
+                            <div style="font-size:11px; color:#475569;">📅 ${item.startDate} ~ ${item.endDate}</div>
+                        </td>
+                        <td>${userDetail}</td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${item.status}</span>
+                            ${item.assignedDevice ? `<div style="font-size:11px; font-weight:bold; color:#f59e0b; margin-top:3px;">เลขเครื่อง: ${item.assignedDevice}</div>` : ''}
+                        </td>
+                        <td>${actionHtml}</td>
+                    </tr>
+                `;
             });
         })
         .catch(err => {
-            clearTimeout(id);
-            console.error("Error loading admin table:", err);
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444;">โหลดข้อมูลแอดมินล้มเหลว</td></tr>`;
+            console.error("Fetch Admin Error:", err);
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ef4444;">โหลดข้อมูลผู้ดูแลไม่สำเร็จ</td></tr>`;
         });
 }
 
-function openChecklistModal(jobId, type, qty) {
+function rejectRequest(jobId) {
+    const reason = prompt("❌ ระบุเหตุผลที่ไม่คำขออนุมัติ:");
+    if(reason === null) return;
+    if(!reason.trim()) { alert("ต้องระบุเหตุผลในการปฏิเสธครับ"); return; }
+
+    fetch(`${BACKEND_URL}?action=rejectRequest&jobId=${jobId}&reason=${encodeURIComponent(reason)}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                alert("ปฏิเสธคำขอยืมอุปกรณ์เรียบร้อย");
+                fetchAdminRequests();
+                fetchUserRequests();
+            } else {
+                alert("เกิดข้อผิดพลาด: " + data.message);
+            }
+        });
+}
+
+function openChecklistModal(jobId, deviceType, qty) {
     document.getElementById('modal-job-id').value = jobId;
     document.getElementById('modal-display-jobid').innerText = jobId;
-    document.getElementById('modal-display-type').innerText = type;
+    document.getElementById('modal-display-type').innerText = deviceType;
     document.getElementById('modal-display-qty').innerText = qty;
     
     document.getElementById('admin_assign_device').value = "";
@@ -331,71 +359,49 @@ function closeChecklistModal() {
 
 function confirmAdminGive() {
     const jobId = document.getElementById('modal-job-id').value;
-    const assignedDevice = document.getElementById('admin_assign_device').value.trim();
-    
-    if(!assignedDevice) {
-        alert("⚠️ โปรดระบุหมายเลขเครื่องหรือรหัสครุภัณฑ์เพื่อบันทึกก่อนให้ยืมครับ");
-        return;
-    }
-    
-    const c1 = document.getElementById('chk-adm-clear').checked;
-    const c2 = document.getElementById('chk-adm-body').checked;
-    const c3 = document.getElementById('chk-adm-power').checked;
-    const c4 = document.getElementById('chk-adm-access').checked;
+    const deviceNo = document.getElementById('admin_assign_device').value.trim();
 
-    if(!c1 || !c2 || !c3 || !c4) {
-        alert("⚠️ แอดมินต้องทำการตรวจสอบสภาพเครื่องให้ครบถ้วนทั้ง 4 ขั้นตอนก่อนส่งมอบครับ");
+    if(!deviceNo) { alert("⚠️ กรุณาระบุหมายเลขเครื่องหรือรหัสครุภัณฑ์ก่อนครับ!"); return; }
+    if(!document.getElementById('chk-adm-clear').checked ||
+       !document.getElementById('chk-adm-body').checked ||
+       !document.getElementById('chk-adm-power').checked ||
+       !document.getElementById('chk-adm-access').checked) {
+        alert("⚠️ กรุณาตรวจสอบและติ๊กถูก Checklist การเตรียมเครื่องให้ครบทุกข้อก่อนส่งมอบครับ!");
         return;
     }
 
     const btn = document.getElementById('btn-admin-confirm');
     btn.disabled = true;
-    btn.innerText = "⏳ กำลังบันทึกเข้าระบบ...";
+    btn.innerText = "กำลังบันทึกอนุมัติ...";
 
-    const payload = {
-        action: "confirmAdminGive",
-        jobId: jobId,
-        assignedDevice: assignedDevice
-    };
-
-    fetch(BACKEND_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(data.success) {
-            alert("📦 สำเร็จ! แอดมินเช็กเตรียมอุปกรณ์เสร็จสิ้น ระบบส่งไม้ต่อให้ผู้ยืมตรวจรับเรียบร้อยครับ");
-            closeChecklistModal();
-            
-            if (currentUser.role === 'Admin') {
+    fetch(`${BACKEND_URL}?action=approveRequest&jobId=${jobId}&assignedDevice=${encodeURIComponent(deviceNo)}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                alert("🎯 อนุมัติคำขอสำเร็จ! ระบบปรับสถานะเป็น 'อนุมัติพร้อมรับเครื่อง' เพื่อรอผู้ยืมมาสแกนตรวจรับ");
+                closeChecklistModal();
                 fetchAdminRequests();
-            } else {
                 fetchUserRequests();
+            } else {
+                alert("❌ เกิดข้อผิดพลาด: " + data.message);
             }
-        } else {
-            alert("❌ ไม่สามารถบันทึกได้เนื่องจาก: " + data.message);
-        }
-    })
-    .catch(err => {
-        console.error("Admin confirm error:", err);
-        alert("❌ เกิดข้อผิดพลาดทางเทคนิค ไม่สามารถบันทึกข้อมูลลงชีตได้");
-    })
-    .finally(() => {
-        btn.disabled = false;
-        btn.innerText = "ยืนยันความพร้อมและ [ให้ยืม]";
-    });
+        })
+        .catch(err => alert("ネットワークエラーが発生しました"))
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerText = "ยืนยันความพร้อมและ [ให้ยืม]";
+        });
 }
 
-function openUserReceiveModal(jobId, assignedDevices) {
+function openUserReceiveModal(jobId, devices) {
     document.getElementById('user-modal-job-id').value = jobId;
     document.getElementById('user-display-jobid').innerText = jobId;
-    document.getElementById('user-display-devices').innerText = assignedDevices || "ไม่มีระบุ";
+    document.getElementById('user-display-devices').innerText = devices;
     
-    document.getElementById('user_receive_sign').value = "";
     document.getElementById('chk-us-body').checked = false;
     document.getElementById('chk-us-power').checked = false;
     document.getElementById('chk-us-access').checked = false;
+    document.getElementById('user_receive_sign').value = "";
 
     document.getElementById('userReceiveModal').style.display = 'flex';
 }
@@ -406,40 +412,25 @@ function closeUserReceiveModal() {
 
 function confirmUserReceive() {
     const jobId = document.getElementById('user-modal-job-id').value;
-    const signName = document.getElementById('user_receive_sign').value.trim();
+    const signature = document.getElementById('user_receive_sign').value.trim();
 
-    if(!signName) {
-        alert("⚠️ โปรดพิมพ์ชื่อ-นามสกุลจริงของคุณ เพื่อใช้เป็นหลักฐานการเซ็นรับเครื่องดิจิทัล");
+    if(!document.getElementById('chk-us-body').checked ||
+       !document.getElementById('chk-us-power').checked ||
+       !document.getElementById('chk-us-access').checked) {
+        alert("⚠️ กรุณาติ๊กตรวจสอบสภาพอุปกรณ์ให้ครบทุกข้อก่อนกดยืนยันรับเครื่องครับ!");
         return;
     }
-
-    const u1 = document.getElementById('chk-us-body').checked;
-    const u2 = document.getElementById('chk-us-power').checked;
-    const u3 = document.getElementById('chk-us-access').checked;
-
-    if(!u1 || !u2 || !u3) {
-        alert("⚠️ โปรดตรวจสอบร่วมกับเจ้าหน้าที่ และติ๊กยืนยันสภาพอุปกรณ์ให้ครบทุกช่องก่อนกดรับเครื่องครับ");
-        return;
-    }
+    if(!signature) { alert("⚠️ กรุณาพิมพ์ชื่อ-นามสกุลจริง เพื่อลงชื่อรับเครื่องแบบดิจิทัลก่อนครับ!"); return; }
 
     const btn = document.getElementById('btn-user-confirm');
     btn.disabled = true;
-    btn.innerText = "⏳ กำลังบันทึกการตรวจรับ...";
+    btn.innerText = "กำลังบันทึกการรับเครื่อง...";
 
-    const payload = {
-        action: "confirmUserReceive",
-        jobId: jobId,
-        userSign: signName
-    };
-
-    fetch(BACKEND_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    })
+    fetch(`${BACKEND_URL}?action=confirmReceive&jobId=${jobId}&signature=${encodeURIComponent(signature)}`)
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            alert("🎉 ยืนยันการรับเครื่องเสร็จสมบูรณ์! ระบบได้เปลี่ยนสถานะเป็น 'กำลังใช้งาน' เรียบร้อยครับ");
+            alert("🎉 ยืนยันการรับเครื่องเสร็จสมบูรณ์! ขอให้ใช้งานด้วยความระมัดระวัง ระบบได้เปลี่ยนสถานะเป็น 'กำลังใช้งาน' เรียบร้อยครับ");
             closeUserReceiveModal();
             
             if (currentUser.role === 'Admin') {
@@ -480,7 +471,7 @@ function processReturnItem(jobId) {
             }
         })
         .catch(err => {
-            console.error("Return device error:", err);
-            alert("❌ ระบบขัดข้อง ไม่สามารถเรียกคำสั่งคืนอุปกรณ์ได้");
+            console.error("Return Error:", err);
+            alert("❌ เกิดปัญหาในการส่งข้อมูลคืนอุปกรณ์");
         });
 }
