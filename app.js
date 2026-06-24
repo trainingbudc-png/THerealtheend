@@ -1,6 +1,3 @@
-// ==========================================
-// CONNECT WITH CONFIG FROM SETTINGS.JS
-// ==========================================
 const BACKEND_URL = CONFIG.BACKEND_URL;
 const LIFF_ID = CONFIG.MY_LIFF_ID;
 
@@ -15,7 +12,6 @@ window.onload = function() {
     initializeLiff();
 };
 
-// สลับเปิดปิดกล่องข้อมูลบุคคลภายนอก (ตัวกรองทำงานสัมพันธ์สมบูรณ์)
 function toggleOutsiderFields() {
     const isChecked = document.getElementById('is_outsider').checked;
     const infoWrap = document.getElementById('outsider_info_fields');
@@ -37,7 +33,6 @@ function toggleOutsiderFields() {
     }
 }
 
-// เริ่มระบบ LINE LIFF บัญชีผู้ใช้ธรรมดา
 function initializeLiff() {
     liff.init({ liffId: LIFF_ID })
         .then(() => {
@@ -66,7 +61,7 @@ function getUserLineProfile() {
     });
 }
 
-// ล็อกอินฝั่ง ADMIN ด้วยบัญชีกลางระบบ
+// ฟังก์ชันเข้าสู่ระบบของ Admin ระบบกลาง
 function handleNormalLogin(event) {
     event.preventDefault();
     const userInp = document.getElementById("username").value.trim();
@@ -99,7 +94,6 @@ function switchPageToDashboard() {
     fetchUserRequests();
 }
 
-// ส่งฟอร์มบันทึกการเบิกยืมลง Sheets
 function submitBorrowRequest(event) {
     event.preventDefault();
     const btn = document.getElementById("btn-submit-req");
@@ -130,7 +124,7 @@ function submitBorrowRequest(event) {
         if (data.success) {
             alert("🚀 ส่งคำขอสำเร็จ! กรุณารอเจ้าหน้าที่แอดมินอนุมัติครับ");
             document.getElementById("borrowForm").reset();
-            toggleOutsiderFields(); // รีเซ็ตซ่อนช่องกรอกของบุคคลภายนอกกลับไปด้วย
+            toggleOutsiderFields();
             if (currentUser.role === "Admin") fetchAdminRequests();
             fetchUserRequests();
         } else {
@@ -143,7 +137,6 @@ function submitBorrowRequest(event) {
     });
 }
 
-// โหลดตารางฝั่งผู้ใช้งานธรรมดา
 function fetchUserRequests() {
     const tbody = document.getElementById("user-table-body");
     fetch(`${BACKEND_URL}?action=getRequests&lineId=${currentUser.lineId}`)
@@ -184,7 +177,6 @@ function fetchUserRequests() {
         });
 }
 
-// โหลดตารางงานควบคุมฝั่ง ADMIN
 function fetchAdminRequests() {
     const tbody = document.getElementById("admin-table-body");
     fetch(`${BACKEND_URL}?action=getRequests&lineId=ADMIN_ALL`)
@@ -226,7 +218,6 @@ function fetchAdminRequests() {
         });
 }
 
-// ADMIN CHECKLIST FUNCTIONS
 function openChecklistModal(jobId, type, qty) {
     document.getElementById("modal-job-id").value = jobId;
     document.getElementById("modal-display-jobid").innerText = jobId;
@@ -279,7 +270,6 @@ function confirmAdminGive() {
         .finally(() => { btn.disabled = false; });
 }
 
-// USER CHECKLIST FUNCTIONS
 function openUserReceiveModal(jobId, assignedDevice) {
     document.getElementById("user-modal-job-id").value = jobId;
     document.getElementById("user-display-jobid").innerText = jobId;
@@ -329,7 +319,6 @@ function confirmUserReceive() {
         .finally(() => { btn.disabled = false; });
 }
 
-// ฟังก์ชันแอดมินกดปุ่มยืนยันการรับคืนของเข้าคลัง
 function processReturnItem(jobId) {
     if (!confirm(`ยืนยันการบันทึกรับคืนอุปกรณ์สำหรับคำขอเลขที่ ${jobId} หรือไม่?`)) return;
 
