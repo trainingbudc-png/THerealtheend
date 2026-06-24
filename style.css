@@ -1,8 +1,264 @@
-/* การตกแต่งตารางและส่วนขยายของระบบประวัติผู้ยืม */
+/* ==========================================
+   1. GLOBAL STYLES & RESET
+   ========================================== */
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Sarabun', sans-serif;
+}
+
+body {
+    background-color: #f8fafc;
+    color: #1e293b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* ==========================================
+   2. CARD LAYOUT (LOGIN & DASHBOARD)
+   ========================================== */
+.login-card, .dashboard-card {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    width: 100%;
+    text-align: center;
+}
+
+.login-card {
+    max-width: 400px;
+}
+
+.dashboard-card {
+    max-width: 900px;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 25px;
+}
+
+.divider {
+    margin: 20px 0;
+    color: #94a3b8;
+    position: relative;
+    font-size: 14px;
+}
+
+.divider::before, .divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: #e2e8f0;
+}
+
+.divider::before { left: 0; }
+.divider::after { right: 0; }
+
+/* ==========================================
+   3. USER PROFILE COMPONENT
+   ========================================== */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #f1f5f9;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.profile-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #0ea5e9;
+}
+
+.user-details {
+    flex-grow: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #1e293b;
+}
+
+.user-id {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* ==========================================
+   4. FORM LAYOUT & INPUTS
+   ========================================== */
+.form-notice {
+    background-color: #fef2f2;
+    border-left: 4px solid #ef4444;
+    color: #dc2626;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    text-align: left;
+}
+
+/* ปรับให้ช่องรายละเอียดขยายเต็มแถว */
+.form-grid .input-group:nth-child(6) {
+    grid-column: span 2;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.input-group input[type="text"],
+.input-group input[type="password"],
+.input-group input[type="number"],
+.input-group input[type="date"],
+.input-group select,
+.input-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #334155;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+form {
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* ==========================================
+   5. BUTTONS STYLES
+   ========================================== */
+button {
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.btn-submit {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-submit:hover { background-color: #1e293b; }
+
+/* จำกัดขนาดไอคอน LINE ไม่ให้ระเบิดใหญ่เต็มจอ */
+.btn-line {
+    background-color: #06C755;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-line:hover { background-color: #05b34c; }
+
+.line-icon {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+}
+
+.btn-logout {
+    background-color: #fee2e2;
+    color: #ef4444;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-logout:hover { background-color: #fecaca; }
+
+.btn-action-submit {
+    background-color: #0ea5e9;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-action-submit:hover { background-color: #0284c7; }
+
+/* ==========================================
+   6. DATA TABLES (ฝั่งแอดมิน & ประวัติผู้ยืม)
+   ========================================== */
 .admin-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    margin-top: 15px;
     background: #ffffff;
     border-radius: 8px;
     overflow: hidden;
@@ -17,16 +273,38 @@
 }
 
 .admin-table th {
+    background-color: #f1f5f9;
+    color: #475569;
     font-weight: bold;
 }
 
-/* ปรับฟอร์มให้ยืดหยุ่นรองรับการเปิดปิดของกล่องคนนอกยืม */
-form {
-    height: auto !important;
-    overflow: visible !important;
+.btn-action-process {
+    background-color: #d97706;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
 }
 
-/* หน้ากากพื้นหลังโปร่งแสงของ Pop-up (Modal) */
+.btn-action-process:hover { filter: brightness(0.9); }
+
+.btn-action-return {
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* ==========================================
+   7. MODAL POP-UP SYSTEM
+   ========================================== */
 .modal {
     display: none; 
     position: fixed; 
@@ -40,7 +318,6 @@ form {
     justify-content: center; 
     align-items: center; 
     padding: 20px;
-    box-sizing: border-box;
 }
 
 .modal-content {
@@ -49,7 +326,7 @@ form {
     max-width: 520px; 
     padding: 25px; 
     border-radius: 14px; 
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
     max-height: 90vh;
     overflow-y: auto;
 }
@@ -64,7 +341,6 @@ form {
     text-align: left;
 }
 
-/* ปุ่มต่าง ๆ ภายในกล่องตรวจสอบ */
 .btn-modal-confirm {
     background-color: #0ea5e9;
     color: white;
@@ -76,11 +352,6 @@ form {
     cursor: pointer;
     width: 100%;
     margin-top: 15px;
-    transition: background 0.2s;
-}
-
-.btn-modal-confirm:hover {
-    filter: brightness(0.9);
 }
 
 .btn-modal-close {
@@ -93,20 +364,20 @@ form {
     cursor: pointer;
     width: 100%;
     margin-top: 8px;
-    transition: background 0.2s;
 }
 
-.btn-modal-close:hover {
-    background-color: #e2e8f0;
-}
+.btn-modal-close:hover { background-color: #e2e8f0; }
 
-.btn-action-process {
-    background-color: #d97706;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
+/* Responsive สำหรับมือถือ */
+@media (max-width: 640px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-grid .input-group:nth-child(6) {
+        grid-column: span 1;
+    }
+    .admin-table {
+        display: block;
+        overflow-x: auto;
+    }
 }
