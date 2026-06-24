@@ -97,21 +97,23 @@ function checkUserRoleAndRender(lineId) {
 function handleNormalLogin(e) {
     e.preventDefault();
     const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value.trim();
     
-    if (user === "admin" && pass === "admin1234") {
+    // 🔥 แก้ไขบรรทัดนี้: เปลี่ยนจาก 'pass' เป็น 'password' ให้ตรงกับหน้า HTML
+    const pass = document.getElementById('password').value.trim(); 
+    
+    if (user === "admin" && pass === "admin1234") { 
         currentUser.lineId = "MANUAL_ADMIN";
-        currentUser.name = "ผู้ดูแลระบบ (Manual Admin)";
+        currentUser.name = "ผู้ดูแลระบบ (Admin)";
         currentUser.img = "https://via.placeholder.com/60";
         currentUser.role = "Admin"; 
         
         document.getElementById('u-img').src = currentUser.img;
         document.getElementById('u-name').innerText = currentUser.name;
-        document.getElementById('u-id').innerText = "SYSTEM ACCESS";
+        document.getElementById('u-id').innerText = "สิทธิ์: ผู้ดูแลระบบสูงสุด";
 
         renderDashboard();
     } else {
-        alert("❌ ชื่อผู้ใช้งานหรือรหัสผ่านผู้ดูแลระบบไม่ถูกต้อง");
+        alert("❌ ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
     }
 }
 
