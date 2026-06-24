@@ -12,30 +12,18 @@
     <h2>ระบบยืม-คืน iPad</h2>
     <div class="subtitle">กรุณาเลือกช่องทางเข้าสู่ระบบด้านล่าง</div>
     
-    <!-- ปุ่มหลักสำหรับผู้ใช้งานทั่วไปผ่าน LINE -->
     <button class="btn-line" onclick="handleLineLogin()">
         <svg class="line-icon" viewBox="0 0 24 24"><path d="M24 10.304c0-5.131-5.37-9.304-12-9.304s-12 4.173-12 9.304c0 4.59 4.254 8.446 10.007 9.18 0.39 0.084 0.922 0.258 1.055 0.592 0.12 0.303 0.079 0.778 0.039 1.084l-0.171 1.027c-0.052 0.303-0.253 1.184 1.091 0.647 1.342-0.537 7.236-4.257 9.873-7.29 1.846-2.122 2.109-3.53 2.109-4.524zm-14.717 2.148c0 0.407-0.331 0.738-0.738 0.738h-2.215c-0.407 0-0.738-0.331-0.738-0.738v-3.693c0-0.407 0.331-0.738 0.738-0.738s0.738 0.331 0.738 0.738v2.955h1.477c0.406 0 0.738 0.331 0.738 0.738zm2.215 0c0 0.407-0.331 0.738-0.738 0.738s-0.738-0.331-0.738-0.738v-3.693c0-0.407 0.331-0.738 0.738-0.738s0.738 0.331 0.738 0.738v3.693zm4.43 0c0 0.263-0.138 0.505-0.364 0.638-0.116 0.068-0.248 0.101-0.374 0.101-0.147 0-0.293-0.044-0.419-0.131l-2.022-1.397v0.789c0 0.407-0.331 0.738-0.738 0.738s-0.738-0.331-0.738-0.738v-3.693c0-0.253 0.13-0.487 0.344-0.62 0.215-0.133 0.484-0.144 0.709-0.027l2.125 1.111v-0.464c0-0.407 0.331-0.738 0.738-0.738s0.738 0.331 0.738 0.738v3.693zm3.693-2.216h-1.477v0.739h1.477c0.407 0 0.738 0.331 0.738 0.738s-0.331 0.738-0.738 0.738h-1.477v0.738h1.477c0.407 0 0.738 0.331 0.738 0.739s-0.331 0.738-0.738 0.738h-2.215c-0.407 0-0.738-0.331-0.738-0.738v-3.693c0-0.407 0.331-0.738 0.738-0.738h2.215c0.407 0 0.738 0.331 0.738 0.738s-0.331 0.738-0.738 0.738z"/></svg>
         เข้าสู่ระบบด้วย LINE
     </button>
-
-    <div class="divider">หรือ (สำหรับเจ้าหน้าที่)</div>
-
-    <!-- ฟอร์มกรอกรหัสสำหรับ แอดมิน / Manual Login -->
-    <form id="loginForm" onsubmit="handleNormalLogin(event)">
-        <div class="input-group">
-            <label for="username">ชื่อผู้ใช้งาน (Username)</label>
-            <input type="text" id="username" placeholder="ระบุ username" required>
-        </div>
-        <div class="input-group">
-            <label for="password">รหัสผ่าน (Password)</label>
-            <input type="password" id="password" placeholder="ระบุ password" required>
-        </div>
-        <button type="submit" class="btn-submit" style="background-color: #475569;">เข้าสู่ระบบด้วยบัญชีระบบ</button>
-    </form>
 </div>
 
-<!-- หน้าหลักหลังล็อกอินสำเร็จ (Dashboard) -->
 <div class="dashboard-card" id="dashboard-page" style="display: none;">
+    
+    <div style="text-align: right; margin-bottom: 10px;">
+        <button id="btn-toggle-admin" onclick="switchToAdmin()" style="background: #475569; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold;">🔑 สลับเป็นสิทธิ์แอดมิน</button>
+    </div>
+
     <div class="user-profile">
         <img id="u-img" src="https://via.placeholder.com/60" alt="โปรไฟล์">
         <div class="user-details">
@@ -45,7 +33,6 @@
         </div>
     </div>
 
-    <!-- ฟอร์มส่งคำขอเบิกเครื่อง (แอดมินและยูสเซอร์เห็นเหมือนกัน และมีช่องคนนอกยืม) -->
     <div class="section-title">📝 กรอกข้อมูลคำขอเบิกเครื่อง</div>
     <form id="borrowForm" onsubmit="submitBorrowRequest(event)">
         <div class="form-grid">
@@ -79,7 +66,6 @@
                 <textarea id="borrow_detail" rows="2" placeholder="ระบุเหตุผลในการขอยืม..." required></textarea>
             </div>
 
-            <!-- ช่องติ๊ก "คนนอกยืม" ที่ต้องการให้ขึ้นทุกสถานะ -->
             <div class="input-group" style="text-align: left; grid-column: span 2;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" id="is_outsider" onchange="toggleOutsiderFields()" style="width: 20px; height: 20px; cursor: pointer;">
@@ -106,7 +92,6 @@
         </button>
     </form>
 
-    <!-- ตารางรายการประวัติของผู้ใช้งาน -->
     <div class="section-title" style="margin-top:35px;">📦 รายการประวัติคำขอยืมของคุณ</div>
     <div class="table-responsive">
         <table>
@@ -123,7 +108,6 @@
         </table>
     </div>
 
-    <!-- โซนของผู้ดูแลระบบ (Admin Only) จะปลดล็อกเมื่อล็อกอิน admin สำเร็จ -->
     <div id="admin-section" style="display: none; margin-top: 40px; border-top: 4px dashed #cbd5e1; padding-top: 25px;">
         <div class="section-title" style="color:#0ea5e9;">🛠️ ส่วนควบคุมสำหรับผู้ดูแลระบบ (Admin)</div>
         <div class="table-responsive">
@@ -145,7 +129,6 @@
     </div>
 </div>
 
-<!-- โมดอลแอดมินจ่ายเครื่อง -->
 <div class="modal-overlay" id="checklistModal" style="display:none;">
     <div class="modal-content">
         <div class="modal-title">🛠️ ขั้นตอนจัดเตรียมเครื่องและตรวจสภาพ (แอดมิน)</div>
@@ -169,7 +152,6 @@
     </div>
 </div>
 
-<!-- โมดอลผู้ยืมกดยืนยันรับเครื่อง -->
 <div class="modal-overlay" id="userReceiveModal" style="display:none;">
     <div class="modal-content">
         <div class="modal-title" style="color: #10b981;">📱 ตรวจรับสภาพอุปกรณ์และเซ็นรับเครื่อง</div>
