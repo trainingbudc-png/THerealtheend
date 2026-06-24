@@ -37,23 +37,17 @@ function toggleOutsiderFields() {
     }
 }
 
+// ⚠️ แก้จุดบกพร่อง: ยกเลิกคำสั่งเช็กอัตโนมัติ เพื่อให้หน้าล็อกอินสแตนด์บายเสมอ
 function initializeLiff() {
     liff.init({ liffId: LIFF_ID })
         .then(() => {
-            if (liff.isLoggedIn()) {
-                getUserLineProfile();
-            } else {
-                document.getElementById('login-page').style.display = 'block';
-                document.getElementById('dashboard-page').style.display = 'none';
-            }
+            // บังคับให้ค้างไว้ที่หน้าล็อกอินหลักก่อนเสมอ ไม่ตัดข้ามไปเองเด็ดขาด
+            document.getElementById('login-page').style.display = 'block';
+            document.getElementById('dashboard-page').style.display = 'none';
         })
         .catch((err) => {
             console.error("LIFF Initialization failed", err);
-            // เผื่อทดสอบบนคอมพิวเตอร์แบบไม่มี LINE ให้เปิดข้ามไปเลย
-            currentUser.lineId = "TEST_LOCAL_USER";
-            currentUser.name = "ผู้ทดสอบระบบ";
-            currentUser.img = "https://via.placeholder.com/60";
-            renderDashboard();
+            document.getElementById('login-page').style.display = 'block';
         });
 }
 
@@ -98,16 +92,26 @@ function checkUserRoleAndRender(lineId) {
 }
 
 // ==========================================
-// ⚡️ ฟังก์ชันลัด: คลิกเพื่อเปิดสิทธิ์แอดมินทันที
+// 3. MANUAL / NORMAL LOGIN SYSTEM (แอดมินกรอกปุ๊บเข้าสิทธิ์ได้ในรอบเดียว)
 // ==========================================
-function switchToAdmin() {
-    const password = prompt("กรุณาใส่รหัสผ่านผู้ดูแลระบบ (Admin Password):");
-    if (password === "admin1234") {
-        currentUser.role = "Admin";
-        alert("🔒 ปลดล็อกสิทธิ์ผู้ดูแลระบบสำเร็จ!");
+function handleNormalLogin(e) {
+    e.preventDefault();
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    
+    if (user === "admin" && pass === "admin1234") {
+        currentUser.lineId = "MANUAL_ADMIN";
+        currentUser.name = "ผู้ดูแลระบบ (Manual Admin)";
+        currentUser.img = "https://via.placeholder.com/60";
+        currentUser.role = "Admin"; 
+        
+        document.getElementById('u-img').src = currentUser.img;
+        document.getElementById('u-name').innerText = currentUser.name;
+        document.getElementById('u-id').innerText = "SYSTEM ACCESS";
+
         renderDashboard();
-    } else if (password !== null) {
-        alert("❌ รหัสผ่านไม่ถูกต้อง");
+    } else {
+        alert("❌ ชื่อผู้ใช้งานหรือรหัสผ่านผู้ดูแลระบบไม่ถูกต้อง");
     }
 }
 
@@ -120,7 +124,6 @@ function renderDashboard() {
         document.getElementById('u-role').style.backgroundColor = "#e0f2fe";
         document.getElementById('u-role').style.color = "#0369a1";
         document.getElementById('admin-section').style.display = 'block';
-        document.getElementById('btn-toggle-admin').style.display = 'none'; // ซ่อนปุ่มสลับถ้าเป็นแอดมินแล้ว
         
         fetchAdminRequests();
         fetchUserRequests();
@@ -129,7 +132,6 @@ function renderDashboard() {
         document.getElementById('u-role').style.backgroundColor = "#f1f5f9";
         document.getElementById('u-role').style.color = "#475569";
         document.getElementById('admin-section').style.display = 'none';
-        document.getElementById('btn-toggle-admin').style.display = 'inline-block';
         
         fetchUserRequests();
     }
@@ -151,8 +153,8 @@ function submitBorrowRequest(e) {
 
     const payload = {
         action: "submitRequest",
-        lineId: currentUser.lineId || "UNKNOWN",
-        userName: currentUser.name || "ไม่ทราบชื่อ",
+        lineId: currentUser.lineId,
+        userName: currentUser.name,
         deviceType: document.getElementById('device_type').value,
         qty: document.getElementById('borrow_qty').value,
         startDate: document.getElementById('start_date').value,
@@ -323,7 +325,7 @@ function confirmAdminGive() {
     const c4 = document.getElementById('chk-adm-access').checked;
 
     if(!c1 || !c2 || !c3 || !c4) {
-        alert("⚠️ แอดมินต้องตรวจรับเช็กสภาพเครื่องให้ครบทั้ง 4 ขั้นตอนก่อนส่งมอบครับ");
+        alert("⚠️ แอดมินต้องทำการตรวจสอบสภาพเครื่องให้ครบถ้วนทั้ง 4 ขั้นตอนก่อนส่งมอบครับ");
         return;
     }
 
@@ -344,7 +346,7 @@ function confirmAdminGive() {
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            alert("📦 สำเร็จ! แอดมินเตรียมอุปกรณ์เสร็จสิ้น ส่งต่อให้ผู้ยืมตรวจรับครับ");
+            alert("📦 สำเร็จ! แอดมินเช็กเตรียมอุปกรณ์เสร็จสิ้น ระบบส่งไม้ต่อให้ผู้ยืมตรวจรับเรียบร้อยครับ");
             closeChecklistModal();
             fetchAdminRequests();
             fetchUserRequests();
@@ -354,7 +356,7 @@ function confirmAdminGive() {
     })
     .catch(err => {
         console.error("Admin confirm error:", err);
-        alert("❌ เกิดข้อผิดพลาด ไม่สามารถบันทึกข้อมูลได้");
+        alert("❌ เกิดข้อผิดพลาดทางเทคนิค ไม่สามารถบันทึกข้อมูลลงชีตได้");
     })
     .finally(() => {
         btn.disabled = false;
@@ -384,7 +386,7 @@ function confirmUserReceive() {
     const signName = document.getElementById('user_receive_sign').value.trim();
 
     if(!signName) {
-        alert("⚠️ โปรดพิมพ์ชื่อ-นามสกุลจริงของคุณ เพื่อคีย์รับเครื่อง");
+        alert("⚠️ โปรดพิมพ์ชื่อ-นามสกุลจริงของคุณ เพื่อใช้เป็นหลักฐานการเซ็นรับเครื่องดิจิทัล");
         return;
     }
 
@@ -393,7 +395,7 @@ function confirmUserReceive() {
     const u3 = document.getElementById('chk-us-access').checked;
 
     if(!u1 || !u2 || !u3) {
-        alert("⚠️ โปรดติ๊กยืนยันสภาพอุปกรณ์ให้ครบทุกช่องก่อนกดรับเครื่องครับ");
+        alert("⚠️ โปรดตรวจสอบร่วมกับเจ้าหน้าที่ และติ๊กยืนยันสภาพอุปกรณ์ให้ครบทุกช่องก่อนกดรับเครื่องครับ");
         return;
     }
 
@@ -414,17 +416,17 @@ function confirmUserReceive() {
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            alert("🎉 ยืนยันการรับเครื่องเสร็จสมบูรณ์!");
+            alert("🎉 ยืนยันการรับเครื่องเสร็จสมบูรณ์! ระบบได้เปลี่ยนสถานะเป็น 'กำลังใช้งาน' เรียบร้อยครับ");
             closeUserReceiveModal();
             if (currentUser.role === 'Admin') fetchAdminRequests();
             fetchUserRequests();
         } else {
-            alert("❌ เกิดความผิดพลาด: " + data.message);
+            alert("❌ เกิดความผิดพลาดจากระบบ: " + data.message);
         }
     })
     .catch(err => {
         console.error("User receive error:", err);
-        alert("❌ ไม่สามารถส่งข้อมูลได้");
+        alert("❌ ไม่สามารถส่งข้อมูลยืนยันได้เนื่องจากปัญหาทางระบบเครือข่าย");
     })
     .finally(() => {
         btn.disabled = false;
@@ -439,7 +441,7 @@ function processReturnItem(jobId) {
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                alert("🔄 รับคืนอุปกรณ์สำเร็จเรียบร้อยครับ");
+                alert("🔄 รับคืนอุปกรณ์และเคลียร์ประวัติลง Google Sheets สำเร็จเรียบร้อยครับ");
                 fetchAdminRequests();
                 fetchUserRequests();
             } else {
@@ -448,6 +450,6 @@ function processReturnItem(jobId) {
         })
         .catch(err => {
             console.error("Return device error:", err);
-            alert("❌ ระบบขัดข้อง ไม่สามารถคืนอุปกรณ์ได้");
+            alert("❌ ระบบขัดข้อง ไม่สามารถเรียกคำสั่งคืนอุปกรณ์ได้");
         });
 }
