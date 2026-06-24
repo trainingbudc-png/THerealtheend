@@ -94,16 +94,18 @@ function switchPageToDashboard() {
     fetchUserRequests();
 }
 
+// 3.1 ส่งคำขอขอยืมอุปกรณ์ใหม่ (แมตช์ action: "submitRequest")
 function submitBorrowRequest(event) {
     event.preventDefault();
     const btn = document.getElementById("btn-submit-req");
     const isOutsider = document.getElementById('is_outsider').checked;
     
     const payload = {
+        action: "submitRequest", // แมตช์กับหลังบ้านของพี่นัท
         lineId: currentUser.lineId,
         userName: currentUser.name,
         deviceType: document.getElementById("device_type").value,
-        qty: document.getElementById("borrow_qty").value,
+        qty: parseInt(document.getElementById("borrow_qty").value),
         startDate: document.getElementById("start_date").value,
         endDate: document.getElementById("end_date").value,
         detail: document.getElementById("borrow_detail").value,
@@ -115,14 +117,14 @@ function submitBorrowRequest(event) {
     btn.disabled = true;
     btn.innerText = "⏳ กำลังส่งข้อมูล...";
 
-    fetch(`${BACKEND_URL}?action=createRequest`, {
+    fetch(BACKEND_URL, {
         method: "POST",
         body: JSON.stringify(payload)
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert("🚀 ส่งคำขอสำเร็จ! กรุณารอเจ้าหน้าที่แอดมินอนุมัติครับ");
+            alert("🚀 ส่งคำขอสำเร็จ! รหัสงานคือ " + data.jobId + " กรุณารอแอดมินดำเนินการเตรียมเครื่องครับ");
             document.getElementById("borrowForm").reset();
             toggleOutsiderFields();
             if (currentUser.role === "Admin") fetchAdminRequests();
@@ -131,19 +133,26 @@ function submitBorrowRequest(event) {
             alert("❌ ไม่สำเร็จ: " + data.message);
         }
     })
+    .catch(err => {
+        console.error(err);
+        alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อหลังบ้าน");
+    })
     .finally(() => {
         btn.disabled = false;
         btn.innerText = "ส่งคำขอเบิกอุปกรณ์";
     });
 }
 
+// 2.3 ดึงข้อมูลฝั่งผู้ใช้งานทั่วไป (แมตช์ action: "getUserRequests")
 function fetchUserRequests() {
     const tbody = document.getElementById("user-table-body");
-    fetch(`${BACKEND_URL}?action=getRequests&lineId=${currentUser.lineId}`)
+    if (!tbody) return;
+
+    fetch(`${BACKEND_URL}?action=getUserRequests&lineId=${currentUser.lineId}`)
         .then(res => res.json())
         .then(data => {
             tbody.innerHTML = "";
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">ยังไม่มีประวัติการยืมของคุณ</td></tr>`;
                 return;
             }
@@ -151,15 +160,16 @@ function fetchUserRequests() {
                 let statusBadge = "";
                 let actionBtn = "";
 
-                if (item.status === "รออนุมัติ") {
-                    statusBadge = `<span class="status-badge" style="background:#fef3c7; color:#d97706;">รอแอดมินเตรียมเครื่อง</span>`;
-                } else if (item.status === "พร้อมรับเครื่อง") {
-                    statusBadge = `<span class="status-badge" style="background:#dbeafe; color:#2563eb;">เตรียมเครื่องเสร็จแล้ว</span>`;
-                    actionBtn = `<button class="btn-table-action" style="background:#10b981; margin-top:5px;" onclick="openUserReceiveModal('${item.jobId}', '${item.assignedDevice}')">📥 ตรวจรับเครื่อง</button>`;
-                } else if (item.status === "กำลังใช้งาน") {
-                    statusBadge = `<span class="status-badge" style="background:#dcfce7; color:#15803d;">กำลังใช้งาน</span>`;
+                // ตรวจคำสั่งแมตช์กับสถานะข้อความจริงในแผ่นชีตพี่นัท
+                if (item.status === "1. รอแอดมินเตรียมเครื่อง") {
+                    statusBadge = `<span class="status-badge" style="background:#fef3c7; color:#d97706; padding: 4px 8px; border-radius: 4px; font-size:12px;">รอแอดมินเตรียมเครื่อง</span>`;
+                } else if (item.status === "2. รอผู้ยืมตรวจสอบและรับเครื่อง") {
+                    statusBadge = `<span class="status-badge" style="background:#dbeafe; color:#2563eb; padding: 4px 8px; border-radius: 4px; font-size:12px;">เตรียมเครื่องเสร็จแล้ว</span>`;
+                    actionBtn = `<button class="btn-table-action" style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-top:5px; font-size:12px;" onclick="openUserReceiveModal('${item.jobId}', '${item.assignedDevices}')">📥 ตรวจรับเครื่อง</button>`;
+                } else if (item.status === "3. ผู้ยืมกำลังใช้งานอุปกรณ์") {
+                    statusBadge = `<span class="status-badge" style="background:#dcfce7; color:#15803d; padding: 4px 8px; border-radius: 4px; font-size:12px;">กำลังใช้งาน</span>`;
                 } else {
-                    statusBadge = `<span class="status-badge" style="background:#f1f5f9; color:#64748b;">คืนสำเร็จ</span>`;
+                    statusBadge = `<span class="status-badge" style="background:#f1f5f9; color:#64748b; padding: 4px 8px; border-radius: 4px; font-size:12px;">คืนสำเร็จ</span>`;
                 }
 
                 tbody.innerHTML += `
@@ -167,41 +177,47 @@ function fetchUserRequests() {
                         <td><strong>${item.jobId}</strong></td>
                         <td>
                             <div style="font-weight:600;">${item.deviceType} (${item.qty} เครื่อง)</div>
-                            <div style="font-size:12px; color:#64748b;">กำหนดคืน: ${item.endDate}</div>
-                            ${item.assignedDevice ? `<div style="font-size:12px; color:#eab308;">เลขเครื่อง: ${item.assignedDevice}</div>` : ''}
+                            <div style="font-size:11px; color:#64748b;">กำหนดคืน: ${item.endDate}</div>
+                            ${item.assignedDevices ? `<div style="font-size:11px; color:#ea580c; font-weight:bold;">เลขเครื่อง: ${item.assignedDevices}</div>` : ''}
                         </td>
                         <td style="text-align:center;">${statusBadge}<br>${actionBtn}</td>
                     </tr>
                 `;
             });
+        })
+        .catch(err => {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:red;">ดึงข้อมูลผิดพลาด เนื่องจากสิทธิ์คลังเข้าไม่ถึง</td></tr>`;
         });
 }
 
+// 2.4 ดึงข้อมูลฝั่ง Admin ทั้งหมด (แมตช์ action: "getAdminRequests")
 function fetchAdminRequests() {
     const tbody = document.getElementById("admin-table-body");
-    fetch(`${BACKEND_URL}?action=getRequests&lineId=ADMIN_ALL`)
+    if (!tbody) return;
+
+    fetch(`${BACKEND_URL}?action=getAdminRequests`)
         .then(res => res.json())
         .then(data => {
             tbody.innerHTML = "";
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">ไม่มีข้อมูลคำขอในระบบ</td></tr>`;
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">ไม่มีข้อมูลคำขอคงค้างในระบบ</td></tr>`;
                 return;
             }
             data.forEach(item => {
                 let statusStyle = "";
                 let actionHtml = "";
 
-                if (item.status === "รออนุมัติ") {
-                    statusStyle = "background:#fef3c7; color:#d97706;";
-                    actionHtml = `<button class="btn-table-action" onclick="openChecklistModal('${item.jobId}', '${item.deviceType}', '${item.qty}')">⚙️ เตรียมเครื่อง & อนุมัติ</button>`;
-                } else if (item.status === "พร้อมรับเครื่อง") {
-                    statusStyle = "background:#dbeafe; color:#2563eb;";
-                    actionHtml = `<span style="font-size:12px; color:#64748b;">รอผู้ยืมมาเซ็นรับของ</span>`;
-                } else if (item.status === "กำลังใช้งาน") {
-                    statusStyle = "background:#dcfce7; color:#15803d;";
-                    actionHtml = `<button class="btn-table-action" style="background:#ef4444;" onclick="processReturnItem('${item.jobId}')">🔄 ยืนยันการรับคืน</button>`;
+                if (item.status === "1. รอแอดมินเตรียมเครื่อง") {
+                    statusStyle = "background:#fef3c7; color:#d97706; padding:4px 8px; border-radius:4px;";
+                    actionHtml = `<button class="btn-table-action" style="background:#0284c7; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="openChecklistModal('${item.jobId}', '${item.deviceType}', '${item.qty}')">⚙️ เตรียมเครื่อง & อนุมัติ</button>`;
+                } else if (item.status === "2. รอผู้ยืมตรวจสอบและรับเครื่อง") {
+                    statusStyle = "background:#dbeafe; color:#2563eb; padding:4px 8px; border-radius:4px;";
+                    actionHtml = `<span style="font-size:12px; color:#64748b;">รอผู้ยืมมาตรวจรับของ</span>`;
+                } else if (item.status === "3. ผู้ยืมกำลังใช้งานอุปกรณ์") {
+                    statusStyle = "background:#dcfce7; color:#15803d; padding:4px 8px; border-radius:4px;";
+                    actionHtml = `<button class="btn-table-action" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" onclick="processReturnItem('${item.jobId}')">🔄 ยืนยันการรับคืน</button>`;
                 } else {
-                    statusStyle = "background:#f1f5f9; color:#64748b;";
+                    statusStyle = "background:#f1f5f9; color:#64748b; padding:4px 8px; border-radius:4px;";
                     actionHtml = `<span style="font-size:12px; color:#10b981;">ปิดงานสำเร็จ</span>`;
                 }
 
@@ -210,7 +226,7 @@ function fetchAdminRequests() {
                         <td><strong>${item.jobId}</strong></td>
                         <td>${item.deviceType} (${item.qty} เครื่อง)<br><small style="color:#64748b;">${item.startDate} ถึง ${item.endDate}</small></td>
                         <td>${item.userName}<br>${item.isOutsider === 'ใช่' ? `<small style="color:#f97316;">(ยืมให้: ${item.outsiderName})</small>` : ''}</td>
-                        <td><span class="status-badge" style="${statusStyle}">${item.status}</span></td>
+                        <td><span class="status-badge" style="${statusStyle}">${item.status.split(". ")[1] || item.status}</span></td>
                         <td>${actionHtml}</td>
                     </tr>
                 `;
@@ -237,6 +253,7 @@ function closeChecklistModal() {
     document.getElementById("checklistModal").style.display = "none";
 }
 
+// 3.2 แอดมินบันทึกเลขเครื่องครุภัณฑ์และอนุมัติ (แมตช์ action: "confirmAdminGive")
 function confirmAdminGive() {
     const jobId = document.getElementById("modal-job-id").value;
     const assignedDevice = document.getElementById("admin_assign_device").value.trim();
@@ -257,17 +274,26 @@ function confirmAdminGive() {
     const btn = document.getElementById("btn-admin-confirm");
     btn.disabled = true;
 
-    fetch(`${BACKEND_URL}?action=adminApprove&jobId=${jobId}&assignedDevice=${encodeURIComponent(assignedDevice)}&adminName=${encodeURIComponent(currentUser.name)}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("✅ จัดเตรียมอุปกรณ์สำเร็จ เปลี่ยนสถานะเป็น 'พร้อมรับเครื่อง' เรียบร้อยครับ");
-                closeChecklistModal();
-                if (currentUser.role === 'Admin') fetchAdminRequests();
-                fetchUserRequests();
-            }
-        })
-        .finally(() => { btn.disabled = false; });
+    const payload = {
+        action: "confirmAdminGive", // แมตช์หลังบ้าน
+        jobId: jobId,
+        assignedDevice: assignedDevice
+    };
+
+    fetch(BACKEND_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("✅ จัดเตรียมอุปกรณ์สำเร็จ เปลี่ยนสถานะเป็น 'รอผู้ยืมตรวจสอบและรับเครื่อง' เรียบร้อยครับ");
+            closeChecklistModal();
+            if (currentUser.role === 'Admin') fetchAdminRequests();
+            fetchUserRequests();
+        }
+    })
+    .finally(() => { btn.disabled = false; });
 }
 
 function openUserReceiveModal(jobId, assignedDevice) {
@@ -287,6 +313,7 @@ function closeUserReceiveModal() {
     document.getElementById("userReceiveModal").style.display = "none";
 }
 
+// 3.3 ผู้ยืมกดยอมรับเครื่องพร้อมตรวจของและบันทึกลายเซ็น (แมตช์ action: "confirmUserReceive")
 function confirmUserReceive() {
     const jobId = document.getElementById("user-modal-job-id").value;
     const userSign = document.getElementById("user_receive_sign").value.trim();
@@ -306,19 +333,29 @@ function confirmUserReceive() {
     const btn = document.getElementById("btn-user-confirm");
     btn.disabled = true;
 
-    fetch(`${BACKEND_URL}?action=userConfirmReceive&jobId=${jobId}&userSign=${encodeURIComponent(userSign)}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("🎉 ยืนยันการรับเครื่องสำเร็จ ระบบเปิดสถานะเป็น 'กำลังใช้งาน' เรียบร้อยครับ");
-                closeUserReceiveModal();
-                if (currentUser.role === 'Admin') fetchAdminRequests();
-                fetchUserRequests();
-            }
-        })
-        .finally(() => { btn.disabled = false; });
+    const payload = {
+        action: "confirmUserReceive", // แมตช์หลังบ้าน
+        jobId: jobId,
+        userSign: userSign
+    };
+
+    fetch(BACKEND_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("🎉 ยืนยันการรับเครื่องสำเร็จ ระบบเปิดสถานะเป็น 'ผู้ยืมกำลังใช้งานอุปกรณ์' เรียบร้อยครับ");
+            closeUserReceiveModal();
+            if (currentUser.role === 'Admin') fetchAdminRequests();
+            fetchUserRequests();
+        }
+    })
+    .finally(() => { btn.disabled = false; });
 }
 
+// 2.5 แอดมินกดบันทึกรับของคืนระบบคลัง (แมตช์ action: "returnDevice")
 function processReturnItem(jobId) {
     if (!confirm(`ยืนยันการบันทึกรับคืนอุปกรณ์สำหรับคำขอเลขที่ ${jobId} หรือไม่?`)) return;
 
@@ -326,7 +363,7 @@ function processReturnItem(jobId) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                alert("🔄 รับคืนอุปกรณ์และอัปเดตประวัติลง Sheets สำเร็จเสร็จสิ้นครับ");
+                alert("🔄 บันทึกรับคืนอุปกรณ์เข้าคลังและเคลียร์อุปกรณ์เรียบร้อยครับ");
                 if (currentUser.role === 'Admin') fetchAdminRequests();
                 fetchUserRequests();
             }
