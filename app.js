@@ -1,4 +1,10 @@
 // ==========================================
+// 0. CONNECT WITH CONFIG FROM SETTINGS.JS
+// ==========================================
+const BACKEND_URL = CONFIG.BACKEND_URL;
+const LIFF_ID = CONFIG.MY_LIFF_ID;
+
+// ==========================================
 // 1. CONFIG & GLOBAL VARIABLES
 // ==========================================
 let currentUser = {
@@ -83,6 +89,8 @@ function checkUserRoleAndRender(lineId) {
             console.error("Error checking role:", err);
             document.getElementById('u-role').innerText = "สถานะ: ผู้ใช้งานทั่วไป (User)";
             document.getElementById('user-section').style.display = 'block';
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('dashboard-page').style.display = 'block';
             fetchUserRequests();
         });
 }
@@ -200,7 +208,7 @@ function fetchUserRequests() {
         .then(res => res.json())
         .then(data => {
             tbody.innerHTML = "";
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#64748b; padding:15px;">คุณยังไม่มีประวัติการขอยืมอุปกรณ์ในระบบ</td></tr>`;
                 return;
             }
@@ -325,7 +333,7 @@ function fetchAdminRequests() {
         .then(res => res.json())
         .then(data => {
             tbody.innerHTML = "";
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#64748b;">ไม่มีคำขอยืมอุปกรณ์ค้างในระบบ</td></tr>`;
                 return;
             }
@@ -416,6 +424,7 @@ function closeChecklistModal() {
     currentAdminActiveJob = null;
 }
 
+// แอดมินปล่อยเครื่องสำเร็จ (List 1)
 function confirmAndGiveItem() {
     if (!currentAdminActiveJob) return;
 

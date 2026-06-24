@@ -17,7 +17,7 @@ body {
     padding: 20px;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* เปลี่ยนเพื่อให้ยืดหยุ่นเวลามีข้อมูลยาวๆ */
+    align-items: flex-start;
 }
 
 /* ==========================================
@@ -29,10 +29,9 @@ body {
     border-radius: 16px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     width: 100%;
-    margin: 20px auto; /* จัดให้อยู่กึ่งกลางหน้าจอแนวนอนอัตโนมัติ */
+    margin: 20px auto;
 }
 
-/* คุมขนาดแยกกันคนละใบอย่างชัดเจน */
 .login-card {
     max-width: 420px;
 }
@@ -130,7 +129,7 @@ h2 {
     margin-bottom: 25px;
 }
 
-/* บังคับช่อง "รายละเอียด" และ "คนนอกยืม" ยืดเต็มความกว้าง */
+/* บังคับช่อง รายละเอียด และ คนนอกยืม ยืดเต็มแถวความกว้าง */
 .form-grid > .input-group:nth-child(6),
 .form-grid > .input-group:nth-child(7) {
     grid-column: span 2;
@@ -169,6 +168,11 @@ h2 {
 .input-group textarea:focus {
     border-color: #0ea5e9;
     box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+form {
+    height: auto !important;
+    overflow: visible !important;
 }
 
 /* ==========================================
@@ -247,7 +251,7 @@ button {
 .btn-action-submit:hover { background-color: #0284c7; }
 
 /* ==========================================
-   6. DATA TABLES (Admin & User History)
+   6. DATA TABLES
    ========================================== */
 .admin-table {
     width: 100%;
@@ -272,8 +276,30 @@ button {
     font-weight: bold;
 }
 
+.btn-action-process {
+    background-color: #d97706;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.btn-action-return {
+    background-color: #6366f1;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+}
+
 /* ==========================================
-   7. MODAL SYSTEM
+   7. MODAL SYSTEM (ปรับปรุง Layer ซ่อนหน้าต่างให้กดได้อิสระ)
    ========================================== */
 .modal {
     display: none; 
@@ -299,13 +325,49 @@ button {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive สำหรับมือถือ */
+.modal-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0ea5e9;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.btn-modal-confirm {
+    background-color: #0ea5e9;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.btn-modal-close {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.btn-modal-close:hover { background-color: #e2e8f0; }
+
 @media (max-width: 640px) {
     .form-grid {
         grid-template-columns: 1fr;
     }
     .form-grid > .input-group:nth-child(6),
-    .form-grid > .input-group:nth-child(7) {
+    .form-grid > .input-group:nth-column(7) {
         grid-column: span 1;
     }
     .admin-table {

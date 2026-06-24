@@ -28,12 +28,12 @@
     <div class="divider">หรือ</div>
 
     <button class="btn-line" onclick="handleLineLogin()">
-        <svg class="line-icon" viewBox="0 0 24 24"><path d="M24 10.304c0-5.131-5.383-9.304-12-9.304s-12 4.173-12 9.304c0 4.594 4.305 8.435 10.119 9.18 0.394 0.085 0.932 0.261 1.066 0.6 l0.383 1.644c0.116 0.501 0.45 0.434 0.45 0.434s0.413-0.279 0.443-0.453c0.068-0.39 0.438-2.519 0.438-2.519 1.226-0.12 2.39-0.443 3.447-0.954 3.013-1.455 5.654-4.52 5.654-8.936zm-15.54 2.871h-1.96c-0.329 0-0.596-0.268-0.596-0.597v-4.57c0-0.329 0.268-0.596 0.596-0.596s0.596 0.268 0.596 0.596v3.974h1.364c0.33 0 0.597 0.268 0.597 0.597 0 0.328-0.267 0.596-0.597 0.596zm3.398-0.597c0 0.329-0.268 0.597-0.597 0.597s-0.268-0.268-0.596-0.597v-4.57c0-0.329 0.268-0.596 0.596-0.596s0.597 0.268 0.597 0.596v4.57zm5.228 0c0 0.161-0.064 0.315-0.178 0.428-0.113 0.113-0.268 0.169-0.419 0.169h-1.96c-0.329 0-0.596-0.268-0.596-0.597v-4.57c0-0.329 0.268-0.596 0.596-0.596s0.596 0.268 0.596 0.596v3.974h1.364c0.33 0 0.597 0.268 0.597 0.597zm3.328-1.558c0 0.329-0.268 0.596-0.597 0.596h-1.364v1.01h1.364c0.33 0 0.597 0.268 0.597 0.597s-0.268 0.597-0.597 0.597h-1.961c-0.329 0-0.596-0.268-0.596-0.597v-4.57c0-0.329 0.268-0.596 0.596-0.596h1.961c0.33 0 0.597 0.268 0.597 0.596s-0.268 0.597-0.597 0.597h-1.364v0.965h1.364c0.33 0 0.597 0.268 0.597 0.596z"/></svg>
+        <svg class="line-icon" viewBox="0 0 24 24"><path d="M24 10.304c0-5.131-5.383-9.304-12-9.304s-12 4.173-12 9.304c0 4.594 4.305 8.435 10.119 9.18 0.394 0.085 0.932 0.261 1.066 0.6 l0.383 1.644c0.116 0.501 0.45 0.434 0.45 0.434s0.413-0.279 0.443-0.453c0.068-0.39 0.438-2.519 0.438-2.519 1.226-0.12 2.39-0.443 3.447-0.954 3.013-1.455 5.654-4.52 5.654-8.936zm-15.54 2.871h-1.96c-0.329 0-0.596-0.268-0.596-0.597v-4.57c0-0.329 0.268-0.596 0.596-0.596s0.596 0.268 0.596 0.596v3.974h1.364c0.33 0 0.597 0.268 0.597 0.597 0 0.328-0.267 0.596-0.597 0.596zm3.398-0.597c0 0.329-0.268 0.597-0.597 0.597s-0.268-0.268-0.596-0.597v-4.57c0-0.329 0.268-0.596 0.596-0.596s0.597 0.268 0.597 0.596v4.57zm5.228 0c0 0.161-0.064 0.315-0.178 0.428-0.113 0.113-0.268 0.169-0.419 0.169h-1.96c-0.329 0-0.596-0.268-0.596-0.597v-4.57c0-0.329 0.268-0.596 0.596-0.596s0.596 0.268 0.596 0.596v3.974h1.364c0.33 0 0.597 0.267 0.597 0.597zm3.328-1.558c0 0.329-0.268 0.596-0.597 0.596h-1.364v1.01h1.364c0.33 0 0.597 0.268 0.597 0.597s-0.268 0.597-0.597 0.597h-1.961c-0.329 0-0.596-0.268-0.596-0.597v-4.57c0-0.329 0.268-0.596 0.596-0.596h1.961c0.33 0 0.597 0.268 0.597 0.596s-0.268 0.597-0.597 0.597h-1.364v0.965h1.364c0.33 0 0.597 0.268 0.597 0.596z"/></svg>
         เข้าสู่ระบบด้วย LINE
     </button>
 </div>
 
-<div class="dashboard-card" id="dashboard-page">
+<div class="dashboard-card" id="dashboard-page" style="display: none;">
     <div class="user-profile">
         <img id="u-img" class="profile-img" src="https://via.placeholder.com/60" alt="User Image">
         <div class="user-details" style="text-align: left;">
@@ -48,7 +48,7 @@
         <h2 style="text-align: left; margin-bottom: 5px; color: #0ea5e9;">การยืม-คืนอุปกรณ์ 📚</h2>
         <div class="form-notice">*** iPad ต้องยืมล่วงหน้า 3 วัน และ เมื่อใช้เสร็จต้องตรวจเครื่องคืน ภายใน 24 ชม. (วันทำการ) หลังใช้เสร็จ</div>
         
-        <form id="borrowForm" onsubmit="submitBorrowRequest(event)" style="height: auto; overflow: visible;">
+        <form id="borrowForm" onsubmit="submitBorrowRequest(event)">
             <div class="form-grid">
                 <div class="input-group">
                     <label>คลัง</label>
@@ -80,28 +80,26 @@
                     <label>รายละเอียด</label>
                     <textarea id="borrow_detail" rows="2" placeholder="ระบุรายละเอียด เช่น สอบ mcq" required></textarea>
                 </div>
+
+                <div class="input-group" style="text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="is_outsider" onchange="toggleOutsiderField()" style="width: 20px; height: 20px; cursor: pointer;">
+                        <label style="margin-bottom: 0; cursor: pointer; font-weight: bold;" for="is_outsider">คนนอกยืม</label>
+                    </div>
+                    
+                    <div id="outsider-detail-wrap" style="display: none; margin-top: 15px; background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 8px;">
+                        <label for="outsider_detail" style="color: #ea580c; font-weight: bold; font-size: 14px; display: block; margin-bottom: 8px;">📝 รายละเอียดคนนอกยืม (เช่น ชื่อ-นามสกุล / สังกัดหน่วยงาน / เบอร์โทรศัพท์)</label>
+                        <textarea id="outsider_detail" rows="2" placeholder="กรุณาระบุข้อมูลติดต่อหรือหน่วยงานของคนนอกเพื่อใช้ติดตามเครื่อง..." style="border: 1px solid #f97316; width: 100%; padding: 10px; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 14px; background: #ffffff;"></textarea>
+                    </div>
+                </div>
             </div>
 
-            <!-- กล่องคนนอกยืม: ออกแบบให้อยู่นอก Grid เพื่อกระจายตัวเปิดปิดได้อิสระ ไม่ซ้อนทับปุ่ม -->
-            <div class="input-group" style="margin-top: 20px; width: 100%; text-align: left;">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                    <input type="checkbox" id="is_outsider" onchange="toggleOutsiderField()" style="width: 20px; height: 20px; cursor: pointer;">
-                    <label style="margin-bottom: 0; cursor: pointer; font-weight: bold;" for="is_outsider">คนนอกยืม</label>
-                </div>
-                
-                <div id="outsider-detail-wrap" style="display: none; margin-top: 15px; background: #fff7ed; border: 1px solid #ffedd5; padding: 15px; border-radius: 8px;">
-                    <label for="outsider_detail" style="color: #ea580c; font-weight: bold; font-size: 14px; display: block; margin-bottom: 8px;">📝 รายละเอียดคนนอกยืม (เช่น ชื่อ-นามสกุล / สังกัดหน่วยงาน / เบอร์โทรศัพท์)</label>
-                    <textarea id="outsider_detail" rows="2" placeholder="กรุณาระบุข้อมูลติดต่อหรือหน่วยงานของคนนอกเพื่อใช้ติดตามเครื่อง..." style="border: 1px solid #f97316; width: 100%; padding: 10px; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 14px; background: #ffffff;"></textarea>
-                </div>
-            </div>
-
-            <button type="submit" class="btn-action-submit" id="btn-submit-text" style="margin-top: 20px;">
+            <button type="submit" class="btn-action-submit" id="btn-submit-text">
                 <svg style="width:20px;height:20px" viewBox="0 0 24 24"><path fill="currentColor" d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" /></svg>
                 ขอเบิก
             </button>
         </form>
 
-        <!-- ตารางประวัติการติดตามและตรวจรับเครื่องของฝั่งผู้ยืม (List ที่ 2) -->
         <div style="margin-top: 40px; border-top: 2px dashed #cbd5e1; padding-top: 25px;">
             <h3 style="text-align: left; color:#10b981; margin-bottom: 5px; font-size: 18px;">📋 รายการคำขอของคุณและการตรวจรับอุปกรณ์</h3>
             <p style="text-align: left; color:#64748b; font-size:13px; margin-bottom:15px;">เมื่อแอดมินตรวจเครื่องฝั่งโน้นผ่านแล้ว สถานะจะเปลี่ยน และมีปุ่มขึ้นมาให้ท่านคลิกตรวจรับอุปกรณ์ครับ</p>
@@ -148,7 +146,6 @@
     </div>
 </div>
 
-<!-- Modal 1: สำหรับแอดมินตรวจสเป็กปล่อยเครื่อง (List 1) -->
 <div class="modal" id="checklist-modal">
     <div class="modal-content">
         <div class="modal-title">1. [ ผู้เตรียมเครื่อง ] Check List iPad</div>
@@ -164,8 +161,7 @@
     </div>
 </div>
 
-<!-- Modal 2: สำหรับผู้ยืมตรวจรับเครื่องสภาพดี (List 2) -->
-<div class="modal" id="user-checklist-modal" style="display: none; align-items: center; justify-content: center;">
+<div class="modal" id="user-checklist-modal">
     <div class="modal-content" style="max-width: 480px; text-align: left;">
         <div class="modal-title" style="color: #10b981; border-color: #10b981;">2. [ ผู้รับเครื่อง ] ใบตรวจรับอุปกรณ์</div>
         
