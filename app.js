@@ -78,28 +78,29 @@ function getUserLineProfile() {
         })
         .catch(err => {
             console.error("Error getting profile", err);
-            // ป้องกันกรณีเข้า LINE ในเบราว์เซอร์อื่นแล้ว Profile ไม่มา ให้ข้ามไปรันหน้าเว็บได้เลย
             currentUser.lineId = "LINE_USER_ERROR";
             currentUser.name = "ผู้ใช้งานทั่วไป (LINE)";
             renderDashboard();
         });
 }
 
-// 🔥 ดักจับข้อผิดพลาดจุดนี้: ถ้าหลังบ้านพังหรือไม่มีข้อมูล ให้ข้ามไปเปิดหน้า Dashboard เป็น User ทันที
 function checkUserRoleAndRender(lineId) {
-    fetch(`${BACKEND_URL}?action=checkRole&lineId=${lineId}`)
-        .then(res => {
-            if (!res.ok) throw new Error("Network status not OK");
-            return res.json();
-        })
+    // ป้องกันกรณีสิทธิ์เช็กช้า ตั้งเวลาตัดตอนไว้ที่ 6 วินาที
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 6000);
+
+    fetch(`${BACKEND_URL}?action=checkRole&lineId=${lineId}`, { signal: controller.signal })
+        .then(res => res.json())
         .then(data => {
+            clearTimeout(id);
             currentUser.role = data.role || "User";
             renderDashboard();
         })
         .catch(err => {
-            console.error("Check role failed, default to User เพื่อป้องกันหน้าจอค้าง", err);
-            currentUser.role = "User"; // ดักจับกรณีชีตหลังบ้านไม่ตอบสนอง
-            renderDashboard(); // บังคับแสดงผลหน้าจอ
+            clearTimeout(id);
+            console.error("Check role failed or timeout, default to User", err);
+            currentUser.role = "User"; 
+            renderDashboard(); 
         });
 }
 
@@ -210,9 +211,14 @@ function fetchUserRequests() {
     const tbody = document.getElementById('user-table-body');
     if (!tbody) return;
 
-    fetch(`${BACKEND_URL}?action=getUserRequests&lineId=${currentUser.lineId}`)
+    // 🔥 ตั้งระบบตัดตอน (Timeout) ไว้ที่ 6 วินาที เพื่อไม่ให้ข้อความ "กำลังดึงข้อมูล" ค้างคาใจผู้ใช้งาน
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 6000);
+
+    fetch(`${BACKEND_URL}?action=getUserRequests&lineId=${currentUser.lineId}`, { signal: controller.signal })
         .then(res => res.json())
         .then(data => {
+            clearTimeout(id);
             tbody.innerHTML = "";
             if(data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">ยังไม่มีประวัติการส่งคำขอยืมอุปกรณ์</td></tr>`;
@@ -250,19 +256,24 @@ function fetchUserRequests() {
             });
         })
         .catch(err => {
+            clearTimeout(id);
             console.error("Error loading user table:", err);
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8;">ยังไม่มีประวัติการส่งคำขอยืมอุปกรณ์</td></tr>`;
+            // แสดงข้อความแจ้งเตือนอย่างเป็นมิตรแทนปล่อยให้ค้างคำว่ากำลังโหลด
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748b; font-size:13px;">🔄 เชื่อมต่อประวัติช้าชั่วคราว (แต่สามารถกรอกฟอร์มยืมด้านบนได้ปกติครับ)</td></tr>`;
         });
 }
 
-// (ฟังก์ชันที่เหลือเหมือนเดิม...)
 function fetchAdminRequests() {
     const tbody = document.getElementById('admin-table-body');
     if (!tbody) return;
 
-    fetch(`${BACKEND_URL}?action=getAdminRequests`)
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 6000);
+
+    fetch(`${BACKEND_URL}?action=getAdminRequests`, { signal: controller.signal })
         .then(res => res.json())
         .then(data => {
+            clearTimeout(id);
             tbody.innerHTML = "";
             if(data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">ไม่มีรายการค้างดำเนินการสำหรับแอดมิน 🎉</td></tr>`;
@@ -293,6 +304,7 @@ function fetchAdminRequests() {
             });
         })
         .catch(err => {
+            clearTimeout(id);
             console.error("Error loading admin table:", err);
             tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444;">โหลดข้อมูลแอดมินล้มเหลว</td></tr>`;
         });
